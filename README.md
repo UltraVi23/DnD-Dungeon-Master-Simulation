@@ -11,4 +11,5 @@ The phenomenon being modeled, combat enjoyment and balance in turn-based RPG sys
 Most existing research has focused on modeling players or generating content automatically, but this project shifts focus to the Dungeon Master’s role. By simulating a DM agent that runs battles using different enemy strategies and group compositions, the simulation can test how these changes influence key aspects of gameplay, like pacing, fairness, and engagement. For example, the simulation will analyze how tactics such as concentrating attacks on one player or spreading damage across the party affect the overall flow and enjoyment of combat. The goal is to identify patterns that consistently lead to satisfying and well-balanced encounters. Insights from this simulation could help game designers and DMs alike create more enjoyable and dynamic combat experiences, whether in traditional tabletop sessions or digital adaptations. 
 
 **Instructions**
+
 *TBD*
