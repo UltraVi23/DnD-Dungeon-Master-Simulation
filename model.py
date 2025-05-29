@@ -17,9 +17,11 @@ class Model(object):
         self.total_damage_dealt = 0
         self.total_damage_received = 0
         self.player_survival_count = 0
+        self.message = "Initiating Battle Sequence..."
     
     def roll_initiative(self):
         initiative = []
+        # Currently fully random, will overwrite preexisting players and enemies
         for _ in range(self.NUM_PLAYERS):
             player = Player(np.random.randint(self.GRID_X), np.random.randint(self.GRID_Y), 'melee')
             initiative.append(player)
@@ -33,9 +35,9 @@ class Model(object):
         np.random.shuffle(initiative)
         return initiative
 
-    def execute_turns(self):
+    def execute_turns(self): # I'm considering making this just do one player's action at a time so that we can see the messages individually
         for agent in self.initiative_order:
-            agent.do_action(self.grid)
+            self.message = agent.do_action(self.grid)
             self.battle_length += 1
 
 def show(model):
@@ -47,7 +49,7 @@ def show(model):
     while 1: # currently infinite
         model.execute_turns()
         model.battle_length += 1
-        visualize_grid(model.grid, message="We can put significant messages here per turn or smth idk", ax=ax)
+        visualize_grid(model.grid, message=model.message, ax=ax)
     plt.close(fig)
     pass
     
