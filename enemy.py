@@ -37,3 +37,27 @@ class Enemy(object):
 
         # for movement go somewhere based on chosen action, move up till max movement if possible
         pass
+
+    def attack(self, player, grid):
+        """
+        This function simulates attacking an player, dealing damage based on the enemy's damage dice.
+        Inputs:
+        self: Player object
+        enemy: an Enemy object to attack
+        grid: a 2D numpy array representing the game grid, where each cell can be None or an Enemy object
+        Outputs:
+        None, but updates the enemy's health and removes it from the grid if defeated
+        """
+        # Roll to hit
+        roll_to_hit = self.roll(20, self.strength)
+        if(roll_to_hit >= player.armor_class):
+            damage = self.roll(self.damage_die, self.strength)
+            # Check for a crit, if so double the damage
+            if(roll_to_hit - self.strength == 20):
+                damage *= 2
+            player.health -= damage
+            # If player's health is zero, they die. Death Saves are not implemented
+            if player.health <= 0:
+                    ex, ey = player.loc
+                    grid[ey, ex] = None
+        
