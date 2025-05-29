@@ -50,6 +50,7 @@ class Enemy(object):
         """
         # Roll to hit
         roll_to_hit = self.roll(20, self.strength)
+        damage = 0
         if(roll_to_hit >= player.armor_class):
             damage = self.roll(self.damage_die, self.strength)
             # Check for a crit, if so double the damage
@@ -60,3 +61,4 @@ class Enemy(object):
             if player.health <= 0:
                     ex, ey = player.loc
                     grid[ey, ex] = None
+        return damage

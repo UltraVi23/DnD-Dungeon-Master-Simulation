@@ -12,7 +12,7 @@ class Player(object):
         self.damage_die = 8
         self.speed = 6 # number of grids not feet: 1 grid = 5 feet
 
-    def roll(die, plus):
+    def roll(self, die, plus):
         """
         Rolls a die with a given number of sides and adds a modifier.
         Inputs:
@@ -103,10 +103,11 @@ class Player(object):
         enemy: an Enemy object to attack
         grid: a 2D numpy array representing the game grid, where each cell can be None or an Enemy object
         Outputs:
-        None, but updates the enemy's health and removes it from the grid if defeated
+        damage: Damage dealt to the enemy.
         """
-        # Roll to hit
+        # Roll to hit - later add proficiency bonus
         roll_to_hit = self.roll(20, self.strength)
+        damage = 0
         if(roll_to_hit >= enemy.armor_class):
             damage = self.roll(self.damage_die, self.strength)
             # Check for a crit, if so double the damage
@@ -117,6 +118,7 @@ class Player(object):
             if enemy.health <= 0:
                     ex, ey = enemy.loc
                     grid[ey, ex] = None
+        return damage
 
     def move_towards(self, target_loc, grid):
         """

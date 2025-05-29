@@ -1,6 +1,7 @@
 import sys
 import os
 from player import Player
+from enemy import Enemy  # Import Enemy class
 import numpy as np
 
 # Add parent directory to path to allow importing from parent directory
@@ -8,8 +9,10 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 def test_roll():
     die = 20
     plus = 5
+
+    player = Player(5, 5, "melee")
     
-    result = Player.roll(die, plus)
+    result = player.roll(die, plus)
     
     assert isinstance(result, int), "Roll should return an integer"
     assert result >= plus + 1 and result <= die + plus, "Roll should be within the range of 1 to die + plus"
@@ -28,3 +31,21 @@ def test_player_initialization():
     assert player.strength == 4, "Player strength should be initialized to 4"
     assert player.damage_die == 8, "Player damage die should be initialized to 8"
     assert player.speed == 6, "Player speed should be initialized to 6"
+
+def test_player_attack():
+    # Setup
+    player = Player(5, 5, "melee")
+    enemy = Enemy(6, 5, "attack_nearest")  # Changed to Enemy instead of Player
+    initial_enemy_health = enemy.health
+    
+    # Create a mock grid with player and enemy
+    grid = np.zeros((10, 10), dtype=object)
+    grid[5, 5] = player
+    grid[5, 6] = enemy
+    
+    # Test attack
+    message = player.attack(enemy, grid)
+    
+    # Assertions
+    assert isinstance(message, int), "Attack should return damage dealt as an integer"
+    assert enemy.health == initial_enemy_health - message, "Enemy health should be reduced or remain the same after attack"
