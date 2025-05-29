@@ -57,6 +57,8 @@ class Player(object):
         nearest_enemy = self.find_nearest_enemy(enemies)
         if nearest_enemy:
             self.move_towards(nearest_enemy.loc, grid)
+        else:
+            return "No enemies found to move towards."
         # After moving, try to attack if now adjacent
         adj = self.adjacent_enemies(grid)
         if adj:
@@ -129,7 +131,7 @@ class Player(object):
             # Check all four directions
             for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
                 nx, ny = my_x + dx, my_y + dy
-                if (0 <= nx < grid.shape[1]) and (0 <= ny < grid.shape[0]) and grid[ny, nx] is None:
+                if (0 <= nx < grid.shape[1]) and (0 <= ny < grid.shape[0]) and (grid[ny, nx] is None or grid[ny, nx] == 0):
                     dist = abs(nx - target_x) + abs(ny - target_y)
                     options.append((dist, nx, ny))
             if not options:
