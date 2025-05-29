@@ -11,7 +11,7 @@ class Enemy(object):
         self.damage_die = 8
         self.speed = 6 # number of grids not feet: 1 grid = 5 feet
 
-    def roll(die, plus):
+    def roll(self, die, plus):
         """
         Rolls a die with a given number of sides and adds a modifier.
         Inputs:
@@ -60,4 +60,3 @@ class Enemy(object):
             if player.health <= 0:
                     ex, ey = player.loc
                     grid[ey, ex] = None
-        
