@@ -9,7 +9,7 @@ class Player(object):
         self.damage_die = 8
         self.speed = 6 # number of grids not feet
 
-    def roll(die, plus)
+    def roll(die, plus):
         return np.random.randint(1, die) + plus
 
     def do_action(self, grid):
