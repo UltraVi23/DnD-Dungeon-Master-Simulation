@@ -4,6 +4,15 @@ from enemy import Enemy
 from player import Player
 
 def visualize_grid(grid, message="", ax=None):
+    """
+    Visualizes the game grid with players and enemies, updating the display with a message.
+    Inputs:
+    grid: a 2D numpy array representing the game grid, where each cell can be None, Player, or Enemy
+    message: a string message to display on the grid
+    ax: a matplotlib Axes object to draw the grid on; if None, uses the current Axes
+    Outputs:
+    None, but visualizes the grid and updates it in real-time.
+    """
     if ax is None:
         ax = plt.gca()
     ax.clear()
@@ -21,7 +30,7 @@ def visualize_grid(grid, message="", ax=None):
                 color_grid[y, x] = 2
 
     from matplotlib.colors import ListedColormap
-    cmap = ListedColormap(["white", "blue", "red"])
+    cmap = ListedColormap(["white", "blue", "red"]) # white for empty, blue for Player, red for Enemy
     ax.imshow(color_grid, cmap=cmap, origin="lower")
     ax.set_title(message, fontsize=12, color="black", pad=20)
     plt.tight_layout()

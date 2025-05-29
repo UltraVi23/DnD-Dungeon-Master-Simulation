@@ -8,6 +8,7 @@ class Model(object):
     def __init__(self):
         self.GRID_X = 100
         self.GRID_Y = 100
+
         self.NUM_PLAYERS = 5
         self.NUM_ENEMIES = 10
 
@@ -20,6 +21,14 @@ class Model(object):
         self.message = "Initiating Battle Sequence..."
     
     def roll_initiative(self):
+        """
+        This function rolls initiative for the combat, or the order in which players and enemies will attack.
+
+        Inputs: 
+        Self
+        Outputs: 
+        initiative (list of Player and Enemy objects in random order)
+        """
         initiative = []
         # Currently fully random, will overwrite preexisting players and enemies
         for _ in range(self.NUM_PLAYERS):
@@ -41,12 +50,20 @@ class Model(object):
             self.battle_length += 1
 
 def show(model):
+    """
+    This function initializes the model and starts the battle simulation, visualizing the grid and updating it in real-time.
+
+    Inputs: 
+    model (Model object)
+    Outputs: 
+    None, but visualizes the grid and updates it in real-time.
+    """
     plt.ion()  # Enable interactive mode
     fig, ax = plt.subplots(figsize=(8, 8))
     plt.show()
 
     # Simulation loop
-    while 1: # currently infinite
+    while 1: # currently infinite - will need to be adjusted later
         model.execute_turns()
         model.battle_length += 1
         visualize_grid(model.grid, message=model.message, ax=ax)
