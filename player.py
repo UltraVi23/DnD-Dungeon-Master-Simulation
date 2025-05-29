@@ -128,8 +128,8 @@ class Player(object):
         Outputs:
         None, but updates the player's location on the grid
         """
-        my_x, my_y = self.loc
-        target_x, target_y = target_loc
+        my_y, my_x = self.loc
+        target_y, target_x = target_loc
         steps = 0
 
         while steps < self.speed and (my_x, my_y) != (target_x, target_y):
@@ -146,11 +146,15 @@ class Player(object):
             # Choose the move that gets closest to the target
             options.sort()
             _, new_x, new_y = options[0]
-            grid[my_y, my_x] = None
-            self.loc = (new_x, new_y)
-            grid[new_x, new_y] = self
-            steps += 1
+            # Erase current location
+            grid[my_y, my_x] = 0
+            # Set new location
+            self.loc = (new_y, new_x)
+            my_y, my_x = self.loc
+            grid[new_y, new_x] = self
 
+            steps += 1
+    
     def adjacent_enemies(self, grid):
         """
         This function finds all enemies adjacent to the player.
