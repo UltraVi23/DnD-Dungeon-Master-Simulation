@@ -17,3 +17,4 @@ class Player(object):
         # update grid
 
         # for movement go somewhere based on chosen action, move up till max movement if possible
+        pass

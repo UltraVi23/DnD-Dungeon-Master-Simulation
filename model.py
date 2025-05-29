@@ -1,7 +1,8 @@
 import numpy as np
-from .enemy import Enemy
-from .player import Player
-import .visualize
+from enemy import Enemy
+from player import Player
+import matplotlib.pyplot as plt
+from visualize import visualize_grid
 
 class Model(object):
     def __init__(self):
@@ -37,7 +38,23 @@ class Model(object):
             agent.do_action(self.grid)
             self.battle_length += 1
 
-    def show(self):
-        # call the visualize function for showing
-        # pause
+def show(model):
+    plt.ion()  # Enable interactive mode
+    fig, ax = plt.subplots(figsize=(8, 8))
+    plt.show()
+
+    # Simulation loop
+    while 1: # currently infinite
+        model.execute_turns()
+        model.battle_length += 1
+        visualize_grid(model.grid, message="We can put significant messages here per turn or smth idk", ax=ax)
+    plt.close(fig)
+    pass
     
+if __name__ == "__main__":
+    model = Model()
+    show(model)
+    print(f"Battle Length: {model.battle_length}")
+    print(f"Total Damage Dealt: {model.total_damage_dealt}")
+    print(f"Total Damage Received: {model.total_damage_received}")
+    print(f"Player Survival Count: {model.player_survival_count}")
