@@ -8,6 +8,7 @@ class Player(object):
         self.health = np.random.randint(30,60)
 
         self.armor_class = 14
+        self.proficiency_bonus = 2
         self.strength = 4
         self.damage_die = 8
         self.speed = 6 # number of grids not feet: 1 grid = 5 feet
@@ -105,8 +106,8 @@ class Player(object):
         Outputs:
         damage: Damage dealt to the enemy.
         """
-        # Roll to hit - later add proficiency bonus
-        roll_to_hit = self.roll(20, self.strength)
+        # Roll to hit
+        roll_to_hit = self.roll(20, self.strength + self.proficiency_bonus)
         damage = 0
         if(roll_to_hit >= enemy.armor_class):
             damage = self.roll(self.damage_die, self.strength)

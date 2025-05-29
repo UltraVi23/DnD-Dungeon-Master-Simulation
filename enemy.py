@@ -10,6 +10,7 @@ class Enemy(object):
         self.strength = 4
         self.damage_die = 8
         self.speed = 6 # number of grids not feet: 1 grid = 5 feet
+        self.proficiency_bonus = 0
 
     def roll(self, die, plus):
         """
@@ -49,7 +50,7 @@ class Enemy(object):
         None, but updates the enemy's health and removes it from the grid if defeated
         """
         # Roll to hit
-        roll_to_hit = self.roll(20, self.strength)
+        roll_to_hit = self.roll(20, self.strength + self.proficiency_bonus)
         damage = 0
         if(roll_to_hit >= player.armor_class):
             damage = self.roll(self.damage_die, self.strength)
