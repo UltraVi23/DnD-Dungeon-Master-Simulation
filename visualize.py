@@ -14,9 +14,10 @@ def visualize_grid(grid, message="", ax=None):
     for y in range(grid.shape[0]):
         for x in range(grid.shape[1]):
             cell = grid[y, x]
-            if isinstance(cell, Player):
+            # Checking both isinstance and class name for extra safety
+            if isinstance(cell, Player) or (hasattr(cell, '__class__') and cell.__class__.__name__ == 'Player'):
                 color_grid[y, x] = 1
-            elif isinstance(cell, Enemy):
+            elif isinstance(cell, Enemy) or (hasattr(cell, '__class__') and cell.__class__.__name__ == 'Enemy'):
                 color_grid[y, x] = 2
 
     from matplotlib.colors import ListedColormap
