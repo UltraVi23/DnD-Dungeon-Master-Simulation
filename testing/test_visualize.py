@@ -3,16 +3,17 @@ import os
 import pytest
 import numpy as np
 import matplotlib.pyplot as plt
-
-# Add parent directory to path to allow importing from parent directory
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import visualize
 from player import Player
 from enemy import Enemy
 
+# Add parent directory to path to allow importing from parent directory
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
 def test_visualize_grid():
     # Create a mock grid with players and enemies
-    grid_size = (10, 10)
+    grid_size = (10, 10) # Small grid for testing
     grid = np.zeros(grid_size, dtype=object)
 
     # Create proper mock classes that inherit from the actual classes

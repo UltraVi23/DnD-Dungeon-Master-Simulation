@@ -7,7 +7,7 @@ class Enemy(object):
         self.health = np.random.randint(30,60)
         self.strength = 4
         self.damage_die = 8
-        self.speed = 6 # number of grids not feet
+        self.speed = 6 # number of grids not feet: 1 grid = 5 feet
 
     def roll(die, plus):
         return np.random.randint(1, die) + plus

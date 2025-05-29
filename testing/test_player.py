@@ -1,11 +1,10 @@
 import sys
 import os
-
-# Add parent directory to path to allow importing from parent directory
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from player import Player
 import numpy as np
 
+# Add parent directory to path to allow importing from parent directory
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 def test_roll():
     die = 20
     plus = 5

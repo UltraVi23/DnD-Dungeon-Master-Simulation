@@ -1,13 +1,14 @@
 import pytest
 import sys
 import os
-
-# Add parent directory to path to allow importing from parent directory
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from model import Model
 from player import Player
 from enemy import Enemy
 import numpy as np
+
+# Add parent directory to path to allow importing from parent directory
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 
 def test_model_initialization():
     model = Model()

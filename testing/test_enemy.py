@@ -1,11 +1,12 @@
 import pytest
 import sys
 import os
+from enemy import Enemy
+import numpy as np
 
 # Add parent directory to path to allow importing from parent directory
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from enemy import Enemy
-import numpy as np
+
 
 def test_roll():
     die = 20
