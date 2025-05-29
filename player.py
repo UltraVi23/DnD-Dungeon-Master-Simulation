@@ -97,7 +97,7 @@ class Player(object):
 
     def attack(self, enemy, grid):
         """
-        This function simulates attacking an enemy, dealing damage based on the player's damage dice.
+        This function simulates attacking an enemy, dealing damage based on the players's damage dice.
         Inputs:
         self: Player object
         enemy: an Enemy object to attack
@@ -105,12 +105,18 @@ class Player(object):
         Outputs:
         None, but updates the enemy's health and removes it from the grid if defeated
         """
-        # Rolling to hit needs to be implemented, for now we assume the attack always hits
-        damage = self.roll(self.damage_die, self.strength)
-        enemy.health -= damage
-        if enemy.health <= 0:
-            ex, ey = enemy.loc
-            grid[ey, ex] = None
+        # Roll to hit
+        roll_to_hit = self.roll(20, self.strength)
+        if(roll_to_hit >= enemy.armor_class):
+            damage = self.roll(self.damage_die, self.strength)
+            # Check for a crit, if so double the damage
+            if(roll_to_hit - self.strength == 20):
+                damage *= 2
+            enemy.health -= damage
+            # If player's health is zero, they die. Death Saves are not implemented
+            if enemy.health <= 0:
+                    ex, ey = enemy.loc
+                    grid[ey, ex] = None
 
     def move_towards(self, target_loc, grid):
         """

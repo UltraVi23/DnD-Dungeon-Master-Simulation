@@ -42,8 +42,8 @@ class Enemy(object):
         """
         This function simulates attacking an player, dealing damage based on the enemy's damage dice.
         Inputs:
-        self: Player object
-        enemy: an Enemy object to attack
+        self: Enemy object
+        player: Player object to be attacked
         grid: a 2D numpy array representing the game grid, where each cell can be None or an Enemy object
         Outputs:
         None, but updates the enemy's health and removes it from the grid if defeated
