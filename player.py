@@ -6,7 +6,13 @@ class Player(object):
         self.loc = (loc_x, loc_y)
         self.strat = strategy # Melee or ranged
         self.health = np.random.randint(30,60)
-        # Implement armor class?
+
+        self.damagetaken = 0 # Track damage taken for scoring purposes
+        self.damagegiven = 0 # Track damage given for scoring purposes
+
+        self.enemieskilled = 0 # Track number of enemies killed for scoring purposes
+
+        self.armor_class = 14
         self.strength = 4
         self.damage_die = 8
         self.speed = 6 # number of grids not feet: 1 grid = 5 feet

@@ -5,7 +5,14 @@ class Enemy(object):
         self.loc = (loc_x, loc_y)
         self.strat = strategy # Attack nearest, strongest, weakest, uniform, etc.
         self.health = np.random.randint(30,60)
-        # Implement armor class?
+
+        self.damagetaken = 0 # Track damage taken for scoring purposes
+        self.damagegiven = 0 # Track damage given for scoring purposes
+
+        self.enemieskilled = 0 # Track number of enemies killed for scoring purposes
+
+        self.armor_class = 10
+
         self.strength = 4
         self.damage_die = 8
         self.speed = 6 # number of grids not feet: 1 grid = 5 feet
@@ -22,6 +29,15 @@ class Enemy(object):
         return np.random.randint(1, die) + plus
 
     def do_action(self, grid):
+        """
+        This function processes and executes the enemy's action based on their strategy.
+        Inputs:
+        self: Enemy object
+        grid: a 2D numpy array representing the game grid, where each cell can be None or an Enemy object
+        Outputs:
+        A string message indicating the action taken by the enemy
+        Enemy object updated on the grid after the action
+        """
         # choose an action to do (move, attack)
         # update grid
 
