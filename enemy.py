@@ -5,12 +5,6 @@ class Enemy(object):
         self.loc = (loc_x, loc_y)
         self.strat = strategy # Attack nearest, strongest, weakest, uniform, etc.
         self.health = np.random.randint(30,60)
-
-        self.damagetaken = 0 # Track damage taken for scoring purposes
-        self.damagegiven = 0 # Track damage given for scoring purposes
-
-        self.enemieskilled = 0 # Track number of enemies killed for scoring purposes
-
         self.armor_class = 10
 
         self.strength = 4

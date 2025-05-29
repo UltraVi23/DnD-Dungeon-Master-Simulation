@@ -12,6 +12,12 @@ class Model(object):
         self.NUM_PLAYERS = 5
         self.NUM_ENEMIES = 10
 
+        self.player_damage_dealt = 0
+        self.enemy_damage_dealt = 0
+
+        self.players_killed = 0
+        self.enemies_killed = 0
+
         self.grid = np.zeros((self.GRID_Y, self.GRID_X), dtype=object)
         self.initiative_order = self.roll_initiative()
         self.battle_length = 0
