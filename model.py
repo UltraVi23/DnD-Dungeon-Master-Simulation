@@ -50,29 +50,71 @@ class Model(object):
         np.random.shuffle(initiative)
         return initiative
 
-    def execute_turns(self): # I'm considering making this just do one player's action at a time so that we can see the messages individually
-        for agent in self.initiative_order:
+    def execute_turns(self):
+        # Create a copy since we'll be modifying the list while iterating
+        current_initiative = self.initiative_order.copy()
+        
+        for agent in current_initiative:
+            # Skip if agent is already dead
+            if agent.health <= 0:
+                continue
+                
             self.message = agent.do_action(self.grid)
+            
+            # Remove dead entities from initiative order
+            self.initiative_order = [
+                entity for entity in self.initiative_order 
+                if entity.health > 0
+            ]
+            
+            # Update stats
+            if isinstance(agent, Player):
+                if agent.health <= 0:
+                    self.players_killed += 1
+            elif isinstance(agent, Enemy):
+                if agent.health <= 0:
+                    self.enemies_killed += 1
+                    
             self.battle_length += 1
+
+    def update_grid_state(self):
+        """
+        Cleans up the grid by removing dead entities and updating entity counts
+        """
+        for y in range(self.GRID_Y):
+            for x in range(self.GRID_X):
+                entity = self.grid[y, x]
+                if isinstance(entity, (Player, Enemy)) and entity.health <= 0:
+                    self.grid[y, x] = None
+
+    def get_all_players(self):
+        """Returns a list of all living players in the grid"""
+        return [cell for cell in self.grid.flat if isinstance(cell, Player)]
+
+    def get_all_enemies(self):
+        """Returns a list of all living enemies in the grid"""
+        return [cell for cell in self.grid.flat if isinstance(cell, Enemy)]
 
 def show(model):
     """
-    This function initializes the model and starts the battle simulation, visualizing the grid and updating it in real-time.
-
-    Inputs: 
-    model (Model object)
-    Outputs: 
-    None, but visualizes the grid and updates it in real-time.
+    This function initializes the model and starts the battle simulation, 
+    visualizing the grid and updating it in real-time.
     """
     plt.ion()  # Enable interactive mode
     fig, ax = plt.subplots(figsize=(8, 8))
     plt.show()
 
     # Simulation loop
-    while 1: # currently infinite - will need to be adjusted later
+    while True:
         model.execute_turns()
+        model.update_grid_state()
         model.battle_length += 1
-        visualize_grid(model.grid, message = model.message, ax = ax, pause = 0.1)
+        visualize_grid(model.grid, message=model.message, ax=ax, pause=0.1)
+        
+        # Check if battle should end
+        if len(model.get_all_players()) == 0 or len(model.get_all_enemies()) == 0:
+            break
+            
     plt.close(fig)
     pass
     

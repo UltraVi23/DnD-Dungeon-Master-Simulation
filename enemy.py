@@ -1,4 +1,5 @@
 import numpy as np
+import time  # Add this import at the top
 
 class Enemy(object):
     def __init__ (self, loc_x, loc_y, strategy):
@@ -26,13 +27,7 @@ class Enemy(object):
     def do_action(self, grid):
         """
         This function processes and executes the enemy's action based on their strategy.
-        Inputs:
-        self: Enemy object
-        grid: a 2D numpy array representing the game grid, where each cell can be None or an Enemy object
-        Outputs:
-        A string message indicating the action taken by the enemy
-        Enemy object updated on the grid after the action
-        """ 
+        """
         from player import Player
         # Find all players
         players = []
@@ -44,11 +39,11 @@ class Enemy(object):
         if not players:
             return "No players to attack."
 
-        # Try to attack first (assuming nearest player for now)
+        # Try to attack first
         adj = self.adjacent_players(grid)
         if adj:
-            self.attack(adj[0], grid)
-            return "Attacked a player, then moved towards the nearest player." # this can be more specific later...
+            damage = self.attack(adj[0], grid)
+            return "Attacked a player."
         
         # If not adjacent, move toward nearest enemy
         nearest_player = self.find_nearest_player(players)
@@ -57,40 +52,33 @@ class Enemy(object):
         
         if self.loc != nearest_player.loc:
             self.move_towards(nearest_player.loc, grid)
+            
             # After moving, try to attack if now adjacent
             adj = self.adjacent_players(grid)
             if adj:
-                self.attack(adj[0], grid)
-                return "Moved towards the nearest player, then attacked if adjacent."
-            return "Moved towards the nearest player, but no attack possible."
-        else:
-            return "Already adjacent to the nearest player, no movement needed."
+                damage = self.attack(adj[0], grid)
+                return "Moved and attacked."
+            return "Moved towards player but couldn't attack."
+        return "Already at target location."
 
     def attack(self, player, grid):
         """
-        This function simulates attacking an player, dealing damage based on the enemy's damage dice.
-        Inputs:
-        self: Enemy object
-        player: Player object to be attacked
-        grid: a 2D numpy array representing the game grid, where each cell can be None or an Enemy object
-        Outputs:
-        None, but updates the enemy's health and removes it from the grid if defeated
+        This function simulates attacking a player.
         """
-        # Roll to hit
         roll_to_hit = self.roll(20, self.strength + self.proficiency_bonus)
         damage = 0
+
         if(roll_to_hit >= player.armor_class):
             damage = self.roll(self.damage_die, self.strength)
-            # Check for a crit, if so double the damage
             if(roll_to_hit - self.strength == 20):
                 damage *= 2
             player.health -= damage
-            # If player's health is zero, they die. Death Saves are not implemented
+            
             if player.health <= 0:
-                    ex, ey = player.loc
-                    grid[ey, ex] = None
+                ex, ey = player.loc
+                grid[ey, ex] = None
         return damage
-    
+
     def find_nearest_player(self, players):
             """
             Finds the nearest player based on Manhattan distance.
@@ -121,19 +109,12 @@ class Enemy(object):
 
     def move_towards(self, target_loc, grid):
         """
-        Moves the player towards a target location on the grid, avoiding obstacles.
-        Inputs:
-        self: Player object
-        target_loc: tuple (x, y) representing the target location to move towards
-        grid: a 2D numpy array representing the game grid, where each cell can be None or an Enemy object
-        Outputs:
-        None, but updates the player's location on the grid
+        Moves the enemy towards a target location.
         """
         my_y, my_x = self.loc
         target_y, target_x = target_loc
         steps = 0
 
-        # Clear starting position
         grid[my_y, my_x] = None
 
         while steps < self.speed:
@@ -154,27 +135,30 @@ class Enemy(object):
             my_y, my_x = ny, nx
             steps += 1
 
-        # Update final position
         self.loc = (my_y, my_x)
         grid[my_y, my_x] = self
 
     def adjacent_players(self, grid):
         """
-        This function finds all enemies adjacent to the player.
+        Returns a list of adjacent Player objects.
         Inputs:
-        self: Player object
-        grid: a 2D numpy array representing the game grid, where each cell can be None or an Enemy object
+        self: Enemy object
+        grid: numpy array representing the game grid
         Outputs:
-        adj: list of Enemy objects that are adjacent to the player
+        adjacent: list of Player objects that are adjacent to this enemy
         """
         from player import Player
+        adjacent = []
         my_y, my_x = self.loc
-        adj = []
         
+        # Check all adjacent squares
         for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
             ny, nx = my_y + dy, my_x + dx
-            if 0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]:
+            
+            # Check if position is within grid bounds
+            if (0 <= ny < grid.shape[0]) and (0 <= nx < grid.shape[1]):
                 cell = grid[ny, nx]
                 if isinstance(cell, Player):
-                    adj.append(cell)        
-        return adj
+                    adjacent.append(cell)
+        
+        return adjacent
