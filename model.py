@@ -40,12 +40,12 @@ class Model(object):
         for _ in range(self.NUM_PLAYERS):
             player = Player(np.random.randint(self.GRID_X), np.random.randint(self.GRID_Y), 'melee')
             initiative.append(player)
-            self.grid[player.loc[1], player.loc[0]] = player
+            self.grid[player.loc[0], player.loc[1]] = player
         
         for _ in range(self.NUM_ENEMIES):
             enemy = Enemy(np.random.randint(self.GRID_X), np.random.randint(self.GRID_Y), 'attack_nearest')
             initiative.append(enemy)
-            self.grid[enemy.loc[1], enemy.loc[0]] = enemy
+            self.grid[enemy.loc[0], enemy.loc[1]] = enemy
         
         np.random.shuffle(initiative)
         return initiative

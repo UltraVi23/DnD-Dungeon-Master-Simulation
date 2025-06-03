@@ -56,24 +56,26 @@ class Player(object):
         if adj:
             self.attack(adj[0], grid)
             # After attacking, try to move toward nearest enemy if possible (will have to update to see if this one died)
-            nearest_enemy = self.find_nearest_enemy(enemies)
-            if nearest_enemy:
-                self.move_towards(nearest_enemy.loc, grid)
+            # nearest_enemy = self.find_nearest_enemy(enemies)
+            # if nearest_enemy:
+            #     self.move_towards(nearest_enemy.loc, grid)
             return "Attacked an enemy, then moved towards the nearest enemy." # this can be more specific later...
         
         # If not adjacent, move toward nearest enemy
         nearest_enemy = self.find_nearest_enemy(enemies)
-        if nearest_enemy:
-            self.move_towards(nearest_enemy.loc, grid)
-        else:
+        if not nearest_enemy:
             return "No enemies found to move towards."
-        # After moving, try to attack if now adjacent
-        adj = self.adjacent_enemies(grid)
-        if adj:
-            self.attack(adj[0], grid)
-            return "Moved towards the nearest enemy, then attacked if adjacent."
-        else:
+        
+        if self.loc != nearest_enemy.loc:
+            self.move_towards(nearest_enemy.loc, grid)
+            # After moving, try to attack if now adjacent
+            adj = self.adjacent_enemies(grid)
+            if adj:
+                self.attack(adj[0], grid)
+                return "Moved towards the nearest enemy, then attacked if adjacent."
             return "Moved towards the nearest enemy, but no attack possible."
+        else:
+            return "Already adjacent to the nearest enemy, no movement needed."
     
     def find_nearest_enemy(self, enemies):
         """
@@ -88,8 +90,8 @@ class Player(object):
             """
             Calculates the Manhattan distance between two locations.
             Inputs:
-            loc1: tuple (x1, y1) representing the first location
-            loc2: tuple (x2, y2) representing the second location
+            loc1: tuple (y1, x1) representing the first location
+            loc2: tuple (y2, x2) representing the second location
             Outputs:
             distance: integer Manhattan distance between loc1 and loc2
             """
@@ -139,31 +141,39 @@ class Player(object):
         None, but updates the player's location on the grid
         """
         my_y, my_x = self.loc
+        # Erase current location
+        grid[my_y, my_x] = None
         target_y, target_x = target_loc
         steps = 0
 
-        while steps < self.speed and (my_x, my_y) != (target_x, target_y):
+        while steps < self.speed and (my_y, my_x) != (target_y, target_x):
             options = []
+            print(f"\nStep {steps + 1}:")
+            print(f"Current position: ({my_y}, {my_x})")
+        
             # Check all four directions
             for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
-                nx, ny = my_x + dx, my_y + dy
-                if (0 <= nx < grid.shape[1]) and (0 <= ny < grid.shape[0]) and (grid[ny, nx] is None or grid[ny, nx] == 0):
-                    dist = abs(nx - target_x) + abs(ny - target_y)
-                    options.append((dist, nx, ny))
+                ny, nx = my_y + dy, my_x + dx
+                if (0 <= nx < grid.shape[1]) and \
+                    (0 <= ny < grid.shape[0]) and \
+                    (grid[ny, nx] is None or grid[ny, nx] == 0):
+                    dist = abs(ny - target_y) + abs(nx - target_x)
+                    options.append((dist, ny, nx))
+                    print(f"Possible move to ({ny}, {nx}) with distance {dist}")
             if not options:
                 break  # Blocked
 
             # Choose the move that gets closest to the target
             options.sort()
-            _, new_x, new_y = options[0]
-            # Erase current location
-            grid[my_y, my_x] = 0
-            # Set new location
-            self.loc = (new_y, new_x)
-            my_y, my_x = self.loc
-            grid[new_y, new_x] = self
+            _, ny, nx = options[0]
+            print(f"Chosen move: ({ny}, {nx})")
+            my_y, my_x = ny, nx
 
             steps += 1
+
+        # Set new location
+        self.loc = (my_y, my_x)
+        grid[my_y, my_x] = self
     
     def adjacent_enemies(self, grid):
         """
@@ -174,7 +184,7 @@ class Player(object):
         Outputs:
         adj: list of Enemy objects that are adjacent to the player
         """
-        my_x, my_y = self.loc
+        my_y, my_x = self.loc
         adj = []
         for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
             nx, ny = my_x + dx, my_y + dy
