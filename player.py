@@ -141,37 +141,42 @@ class Player(object):
         None, but updates the player's location on the grid
         """
         my_y, my_x = self.loc
-        # Erase current location
-        grid[my_y, my_x] = None
         target_y, target_x = target_loc
         steps = 0
 
-        while steps < self.speed and (my_y, my_x) != (target_y, target_x):
-            options = []
-            print(f"\nStep {steps + 1}:")
-            print(f"Current position: ({my_y}, {my_x})")
-        
-            # Check all four directions
-            for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
-                ny, nx = my_y + dy, my_x + dx
-                if (0 <= nx < grid.shape[1]) and \
-                    (0 <= ny < grid.shape[0]) and \
-                    (grid[ny, nx] is None or grid[ny, nx] == 0):
-                    dist = abs(ny - target_y) + abs(nx - target_x)
-                    options.append((dist, ny, nx))
-                    print(f"Possible move to ({ny}, {nx}) with distance {dist}")
-            if not options:
-                break  # Blocked
+        # Calculate ideal range (1 for melee, just within attack_range for ranged)
+        ideal_range = 1 if self.strat == "melee" else self.attack_range - 1
 
-            # Choose the move that gets closest to the target
+        # Clear starting position
+        grid[my_y, my_x] = None
+
+        while steps < self.speed:
+            current_dist = abs(my_y - target_y) + abs(my_x - target_x)
+            
+            # Stop if we're at ideal range
+            if current_dist <= ideal_range:
+                break
+
+            options = []
+            for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
+                ny, nx = my_y + dy, my_x + dx
+                if (0 <= ny < grid.shape[0]) and \
+                (0 <= nx < grid.shape[1]) and \
+                (grid[ny, nx] is None or grid[ny, nx] == 0):
+                    new_dist = abs(ny - target_y) + abs(nx - target_x)
+                    # Only move if it gets us closer to ideal range
+                    if abs(new_dist - ideal_range) < abs(current_dist - ideal_range):
+                        options.append((new_dist, ny, nx))
+
+            if not options:
+                break
+
             options.sort()
             _, ny, nx = options[0]
-            print(f"Chosen move: ({ny}, {nx})")
             my_y, my_x = ny, nx
-
             steps += 1
 
-        # Set new location
+        # Update final position
         self.loc = (my_y, my_x)
         grid[my_y, my_x] = self
     
@@ -186,10 +191,23 @@ class Player(object):
         """
         my_y, my_x = self.loc
         adj = []
-        for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
-            nx, ny = my_x + dx, my_y + dy
-            if 0 <= nx < grid.shape[1] and 0 <= ny < grid.shape[0]:
-                cell = grid[ny, nx]
-                if isinstance(cell, Enemy):
-                    adj.append(cell)
+        
+        # For melee, check only adjacent squares
+        if self.strat == "melee":
+            for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
+                ny, nx = my_y + dy, my_x + dx
+                if 0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]:
+                    cell = grid[ny, nx]
+                    if isinstance(cell, Enemy):
+                        adj.append(cell)
+        # For ranged, check all squares within attack range
+        else:  # ranged strategy
+            for y in range(grid.shape[0]):
+                for x in range(grid.shape[1]):
+                    dist = abs(my_y - y) + abs(my_x - x)
+                    if dist <= self.attack_range:
+                        cell = grid[y, x]
+                        if isinstance(cell, Enemy):
+                            adj.append(cell)
+        
         return adj
