@@ -1,5 +1,4 @@
 import numpy as np
-from enemy import Enemy
 
 class Player(object):
     def __init__(self, loc_x, loc_y, strategy):
@@ -41,6 +40,7 @@ class Player(object):
         A string message indicating the action taken by the player
         Player object updated on the grid after the action
         """
+        from enemy import Enemy
         # Find all enemies
         enemies = []
         for y in range(grid.shape[0]):
@@ -189,6 +189,7 @@ class Player(object):
         Outputs:
         adj: list of Enemy objects that are adjacent to the player
         """
+        from enemy import Enemy
         my_y, my_x = self.loc
         adj = []
         

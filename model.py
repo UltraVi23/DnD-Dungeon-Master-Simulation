@@ -72,7 +72,7 @@ def show(model):
     while 1: # currently infinite - will need to be adjusted later
         model.execute_turns()
         model.battle_length += 1
-        visualize_grid(model.grid, message=model.message, ax=ax)
+        visualize_grid(model.grid, message = model.message, ax = ax, pause = 0.1)
     plt.close(fig)
     pass
     

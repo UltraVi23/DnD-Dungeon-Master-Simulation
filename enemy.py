@@ -32,12 +32,39 @@ class Enemy(object):
         Outputs:
         A string message indicating the action taken by the enemy
         Enemy object updated on the grid after the action
-        """
-        # choose an action to do (move, attack)
-        # update grid
+        """ 
+        from player import Player
+        # Find all players
+        players = []
+        for y in range(grid.shape[0]):
+            for x in range(grid.shape[1]):
+                cell = grid[y, x]
+                if isinstance(cell, Player):
+                    players.append(cell)
+        if not players:
+            return "No players to attack."
 
-        # for movement go somewhere based on chosen action, move up till max movement if possible
-        pass
+        # Try to attack first (assuming nearest player for now)
+        adj = self.adjacent_players(grid)
+        if adj:
+            self.attack(adj[0], grid)
+            return "Attacked a player, then moved towards the nearest player." # this can be more specific later...
+        
+        # If not adjacent, move toward nearest enemy
+        nearest_player = self.find_nearest_player(players)
+        if not nearest_player:
+            return "No players found to move towards."
+        
+        if self.loc != nearest_player.loc:
+            self.move_towards(nearest_player.loc, grid)
+            # After moving, try to attack if now adjacent
+            adj = self.adjacent_players(grid)
+            if adj:
+                self.attack(adj[0], grid)
+                return "Moved towards the nearest player, then attacked if adjacent."
+            return "Moved towards the nearest player, but no attack possible."
+        else:
+            return "Already adjacent to the nearest player, no movement needed."
 
     def attack(self, player, grid):
         """
@@ -63,3 +90,91 @@ class Enemy(object):
                     ex, ey = player.loc
                     grid[ey, ex] = None
         return damage
+    
+    def find_nearest_player(self, players):
+            """
+            Finds the nearest player based on Manhattan distance.
+            Inputs:
+            self: Enemy object
+            players: list of Player objects
+            Outputs:
+            nearest: the nearest Player object based on Manhattan distance, or None if no players
+            """
+            def manhattan(loc1, loc2):
+                """
+                Calculates the Manhattan distance between two locations.
+                Inputs:
+                loc1: tuple (y1, x1) representing the first location
+                loc2: tuple (y2, x2) representing the second location
+                Outputs:
+                distance: integer Manhattan distance between loc1 and loc2
+                """
+                return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])
+            min_dist = float('inf')
+            nearest = None
+            for player in players:
+                dist = manhattan(self.loc, player.loc)
+                if dist < min_dist:
+                    min_dist = dist
+                    nearest = player
+            return nearest
+
+    def move_towards(self, target_loc, grid):
+        """
+        Moves the player towards a target location on the grid, avoiding obstacles.
+        Inputs:
+        self: Player object
+        target_loc: tuple (x, y) representing the target location to move towards
+        grid: a 2D numpy array representing the game grid, where each cell can be None or an Enemy object
+        Outputs:
+        None, but updates the player's location on the grid
+        """
+        my_y, my_x = self.loc
+        target_y, target_x = target_loc
+        steps = 0
+
+        # Clear starting position
+        grid[my_y, my_x] = None
+
+        while steps < self.speed:
+            options = []
+            for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
+                ny, nx = my_y + dy, my_x + dx
+                if (0 <= ny < grid.shape[0]) and \
+                (0 <= nx < grid.shape[1]) and \
+                (grid[ny, nx] is None or grid[ny, nx] == 0):
+                    new_dist = abs(ny - target_y) + abs(nx - target_x)
+                    options.append((new_dist, ny, nx))
+
+            if not options:
+                break
+
+            options.sort()
+            _, ny, nx = options[0]
+            my_y, my_x = ny, nx
+            steps += 1
+
+        # Update final position
+        self.loc = (my_y, my_x)
+        grid[my_y, my_x] = self
+
+    def adjacent_players(self, grid):
+        """
+        This function finds all enemies adjacent to the player.
+        Inputs:
+        self: Player object
+        grid: a 2D numpy array representing the game grid, where each cell can be None or an Enemy object
+        Outputs:
+        adj: list of Enemy objects that are adjacent to the player
+        """
+        from player import Player
+        my_y, my_x = self.loc
+        adj = []
+        
+        for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
+            ny, nx = my_y + dy, my_x + dx
+            if 0 <= ny < grid.shape[0] and 0 <= nx < grid.shape[1]:
+                cell = grid[ny, nx]
+                if isinstance(cell, Player):
+                    adj.append(cell)        
+        return adj
