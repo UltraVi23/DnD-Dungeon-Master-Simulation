@@ -4,13 +4,20 @@ from enemy import Enemy
 class Player(object):
     def __init__(self, loc_x, loc_y, strategy):
         self.loc = (loc_x, loc_y)
+
         self.strat = strategy # Melee or ranged
         self.health = np.random.randint(30,60)
 
         self.armor_class = 14
         self.proficiency_bonus = 2
         self.strength = 4
-        self.damage_die = 8
+        if(self.strat == "melee"):
+            self.damage_die = 8
+            self.attack_range = 1 # distance that a melee attack can reach
+        elif(self.strat == "ranged"):
+            self.damage_die = 4
+            self.attack_range = 12 # distance that a ranged attack can reach
+        
         self.speed = 6 # number of grids not feet: 1 grid = 5 feet
 
     def roll(self, die, plus):
