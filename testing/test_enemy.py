@@ -74,3 +74,82 @@ def test_enemy_attack_reduces_player_health():
     grid[5, 6] = enemy
     damage = enemy.attack(player, grid)
     assert player.health == initial_player_health - damage, "Player health should be reduced by damage amount"
+
+
+def test_enemy_pathfinding_direct_route():
+    """Test enemy can find direct path to target when unobstructed"""
+    grid = np.zeros((10, 10), dtype=object)
+    enemy = Enemy(0, 0, "attack_nearest")
+    player = Player(3, 3, "melee")
+    grid[0, 0] = enemy
+    grid[3, 3] = player
+    
+    enemy.move_towards(player.loc, grid)
+    assert enemy.loc != (0, 0), "Enemy should have moved from starting position"
+    assert manhattan_distance(enemy.loc, player.loc) < manhattan_distance((0, 0), player.loc), \
+        "Enemy should have moved closer to player"
+
+
+def test_enemy_pathfinding_blocked_route():
+    """Test enemy can find alternate path when direct route is blocked"""
+    grid = np.zeros((5, 5), dtype=object)
+    enemy = Enemy(0, 0, "attack_nearest")
+    player = Player(0, 4, "melee")
+    # Create wall of enemies blocking direct path
+    blocking_enemy1 = Enemy(0, 1, "attack_nearest")
+    blocking_enemy2 = Enemy(0, 2, "attack_nearest")
+    blocking_enemy3 = Enemy(0, 3, "attack_nearest")
+    
+    grid[0, 0] = enemy
+    grid[0, 4] = player
+    grid[0, 1] = blocking_enemy1
+    grid[0, 2] = blocking_enemy2
+    grid[0, 3] = blocking_enemy3
+    
+    initial_pos = enemy.loc
+    enemy.move_towards(player.loc, grid)
+    assert enemy.loc != initial_pos, "Enemy should find alternate path around obstacles"
+    assert manhattan_distance(enemy.loc, player.loc) < manhattan_distance(initial_pos, player.loc), \
+        "Enemy should have moved closer to player despite obstacles"
+
+
+def test_enemy_respects_speed_limit():
+    """Test enemy movement is limited by speed attribute"""
+    grid = np.zeros((10, 10), dtype=object)
+    enemy = Enemy(0, 0, "attack_nearest")
+    player = Player(9, 9, "melee")
+    enemy.speed = 3  # Set speed limit
+    
+    grid[0, 0] = enemy
+    grid[9, 9] = player
+    
+    initial_pos = enemy.loc
+    enemy.move_towards(player.loc, grid)
+    
+    assert manhattan_distance(enemy.loc, initial_pos) <= enemy.speed, \
+        f"Enemy moved {manhattan_distance(enemy.loc, initial_pos)} spaces but speed limit is {enemy.speed}"
+
+
+def test_enemy_handles_unreachable_target():
+    """Test enemy behavior when target is completely unreachable"""
+    grid = np.zeros((5, 5), dtype=object)
+    enemy = Enemy(0, 0, "attack_nearest")
+    player = Player(4, 4, "melee")
+    # Create wall of enemies blocking all possible paths
+    for i in range(5):
+        for j in range(5):
+            if (i, j) != (0, 0) and (i, j) != (4, 4):
+                grid[i, j] = Enemy(i, j, "attack_nearest")
+    
+    grid[0, 0] = enemy
+    grid[4, 4] = player
+    
+    initial_pos = enemy.loc
+    enemy.move_towards(player.loc, grid)
+    assert enemy.loc == initial_pos, "Enemy should stay in place when target is unreachable"
+
+
+# Helper function for the tests
+def manhattan_distance(loc1, loc2):
+    """Calculate Manhattan distance between two points"""
+    return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])

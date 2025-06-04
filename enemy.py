@@ -115,32 +115,52 @@ class Enemy(object):
 
     def move_towards(self, target_loc, grid):
         """
-        Moves the enemy towards a target location.
+        Moves the enemy towards a target location using BFS pathfinding.
+        If the preferred path is blocked, it will find alternative routes.
         """
         my_y, my_x = self.loc
         target_y, target_x = target_loc
         steps = 0
 
+        # Remove self from current position
         grid[my_y, my_x] = None
 
-        while steps < self.speed:
-            options = []
-            for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
-                ny, nx = my_y + dy, my_x + dx
-                if (0 <= ny < grid.shape[0]) and \
-                (0 <= nx < grid.shape[1]) and \
-                (grid[ny, nx] is None or grid[ny, nx] == 0):
-                    new_dist = abs(ny - target_y) + abs(nx - target_x)
-                    options.append((new_dist, ny, nx))
+        # Use BFS to find path
+        def find_path():
+            queue = [(my_y, my_x, [])]
+            visited = set()
+            
+            while queue:
+                curr_y, curr_x, path = queue.pop(0)
+                
+                if (curr_y, curr_x) == (target_y, target_x):
+                    return path
+                    
+                if (curr_y, curr_x) not in visited:
+                    visited.add((curr_y, curr_x))
+                    
+                    # Check all adjacent squares
+                    for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
+                        ny, nx = curr_y + dy, curr_x + dx
+                        
+                        # Check if position is valid and unoccupied
+                        if (0 <= ny < grid.shape[0]) and \
+                           (0 <= nx < grid.shape[1]) and \
+                           (grid[ny, nx] is None or grid[ny, nx] == 0 or (ny, nx) == target_loc):
+                            new_path = path + [(ny, nx)]
+                            queue.append((ny, nx, new_path))
+            
+            return []  # Return empty path if no valid path found
 
-            if not options:
-                break
-
-            options.sort()
-            _, ny, nx = options[0]
-            my_y, my_x = ny, nx
+        # Find the best path
+        path = find_path()
+        
+        # Move along the path up to speed limit
+        for step in range(min(self.speed, len(path))):
+            my_y, my_x = path[step]
             steps += 1
 
+        # Update enemy position
         self.loc = (my_y, my_x)
         grid[my_y, my_x] = self
 
