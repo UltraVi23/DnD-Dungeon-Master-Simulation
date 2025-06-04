@@ -59,7 +59,9 @@ class Model(object):
             if agent.health <= 0:
                 continue
                 
-            self.message = agent.do_action(self.grid)
+            dmg_dealt,dmg_recieved = agent.do_action(self.grid)
+            self.total_damage_dealt += dmg_dealt
+            self.total_damage_received += dmg_recieved
             
             # Remove dead entities from initiative order
             self.initiative_order = [

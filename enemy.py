@@ -37,29 +37,28 @@ class Enemy(object):
                 if isinstance(cell, Player):
                     players.append(cell)
         if not players:
-            return "No players to attack."
+            return (0,0)  # No players to attack
 
         # Try to attack first
         adj = self.adjacent_players(grid)
         if adj:
             damage = self.attack(adj[0], grid)
-            return "Attacked a player."
+            return (0,damage)  # Return damage dealt
         
         # If not adjacent, move toward nearest enemy
         nearest_player = self.find_nearest_player(players)
         if not nearest_player:
-            return "No players found to move towards."
+            return (0,0)  # No players to attack
         
         if self.loc != nearest_player.loc:
             self.move_towards(nearest_player.loc, grid)
             
-            # After moving, try to attack if now adjacent
-            adj = self.adjacent_players(grid)
-            if adj:
-                damage = self.attack(adj[0], grid)
-                return "Moved and attacked."
-            return "Moved towards player but couldn't attack."
-        return "Already at target location."
+        # After moving, try to attack if now adjacent
+        adj = self.adjacent_players(grid)
+        if adj:
+            damage = self.attack(adj[0], grid)
+            return (0,damage)  # Return damage dealt
+        return (0,0)
 
     def attack(self, player, grid):
         """

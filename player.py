@@ -41,29 +41,28 @@ class Player(object):
                 if isinstance(cell, Enemy):
                     enemies.append(cell)
         if not enemies:
-            return "No enemies to attack."
+            return (0,0)  # No enemies to attack
 
         # Try to attack first
         adj = self.adjacent_enemies(grid)
         if adj:
             damage = self.attack(adj[0], grid)
-            return "Attacked an enemy, then moved towards the nearest enemy."
+            return (damage,0)  # Return damage dealt
         
         # If not adjacent, move toward nearest enemy
         nearest_enemy = self.find_nearest_enemy(enemies)
         if not nearest_enemy:
-            return "No enemies found to move towards."
+            return (0,0)  # No enemies to attack
         
         if self.loc != nearest_enemy.loc:
             self.move_towards(nearest_enemy.loc, grid)
             
-            # After moving, try to attack if now adjacent
-            adj = self.adjacent_enemies(grid)
-            if adj:
-                damage = self.attack(adj[0], grid)
-                return "Moved towards the nearest enemy, then attacked if adjacent."
-            return "Moved towards the nearest enemy, but no attack possible."
-        return "Already adjacent to the nearest enemy, no movement needed."
+        # After moving, try to attack if now adjacent
+        adj = self.adjacent_enemies(grid)
+        if adj:
+            damage = self.attack(adj[0], grid)
+            return (damage, 0)  # Return damage dealt
+        return (0,0)  # No action taken
 
     def find_nearest_enemy(self, enemies):
         """
