@@ -62,7 +62,8 @@ class Player(object):
         if adj:
             damage = self.attack(adj[0], grid)
             return (damage, 0)  # Return damage dealt
-        return (0,0)  # No action taken
+        self.move_towards(nearest_enemy.loc, grid) # If still not adjacent, just move towards the enemy again
+        return (0,0)
 
     def find_nearest_enemy(self, enemies):
         """
