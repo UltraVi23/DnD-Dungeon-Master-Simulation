@@ -43,7 +43,7 @@ class Model(object):
             self.grid[player.loc[0], player.loc[1]] = player
         
         for _ in range(self.NUM_ENEMIES):
-            enemy = Enemy(np.random.randint(self.GRID_X), np.random.randint(self.GRID_Y), 'attack_nearest')
+            enemy = Enemy(np.random.randint(self.GRID_X), np.random.randint(self.GRID_Y), 'attack_strongest')
             initiative.append(enemy)
             self.grid[enemy.loc[0], enemy.loc[1]] = enemy
         
@@ -118,7 +118,6 @@ def show(model):
             break
             
     plt.close(fig)
-    pass
     
 if __name__ == "__main__":
     model = Model()

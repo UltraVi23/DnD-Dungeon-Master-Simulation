@@ -44,14 +44,21 @@ class Enemy(object):
         if adj:
             damage = self.attack(adj[0], grid)
             return (0,damage)  # Return damage dealt
-        
-        # If not adjacent, move toward nearest enemy
-        nearest_player = self.find_nearest_player(players)
-        if not nearest_player:
+
+        # If not adjacent, move toward target enemy
+        if self.strat == 'attack_nearest':
+            target_player = self.find_nearest_player(players)
+        elif self.strat == 'attack_strongest':
+            target_player = max(players, key=lambda p: p.health, default=None)
+        elif self.strat == 'attack_weakest':
+            target_player = min(players, key=lambda p: p.health, default=None)
+        elif self.strat == 'attack_uniform':
+            target_player = np.random.choice(players) if players else None
+        if not target_player:
             return (0,0)  # No players to attack
         
-        if self.loc != nearest_player.loc:
-            self.move_towards(nearest_player.loc, grid)
+        if self.loc != target_player.loc:
+            self.move_towards(target_player.loc, grid)
             
         # After moving, try to attack if now adjacent
         adj = self.adjacent_players(grid)
