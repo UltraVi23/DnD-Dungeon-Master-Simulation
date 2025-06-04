@@ -111,10 +111,15 @@ def show(model):
         model.execute_turns()
         model.update_grid_state()
         model.battle_length += 1
+        model.player_survival_count = len(model.get_all_players())
         visualize_grid(model.grid, message=model.message, ax=ax, pause=0.1)
         
         # Check if battle should end
-        if len(model.get_all_players()) == 0 or len(model.get_all_enemies()) == 0:
+        if len(model.get_all_players()) == 0:
+            print("All players defeated. Enemies win.")
+            break
+        if len(model.get_all_enemies()) == 0:
+            print("All enemies defeated. Players win!")
             break
             
     plt.close(fig)
