@@ -112,43 +112,54 @@ class Player(object):
 
     def move_towards(self, target_loc, grid):
         """
-        Moves the player towards a target location.
+        Moves the player towards a target location using BFS pathfinding.
+        Takes into account the player's strategy (melee vs ranged) for ideal positioning.
         """
         my_y, my_x = self.loc
         target_y, target_x = target_loc
-        steps = 0
 
+        # Remove self from current position
         grid[my_y, my_x] = None
 
-        # Calculate ideal range (1 for melee, just within attack_range for ranged)
+        # Calculate ideal range based on strategy
         ideal_range = 1 if self.strat == "melee" else self.attack_range - 1
 
-        while steps < self.speed:
-            current_dist = abs(my_y - target_y) + abs(my_x - target_x)
+        def find_path():
+            queue = [(my_y, my_x, [])]
+            visited = set()
             
-            # Stop if we're at ideal range
-            if current_dist <= ideal_range:
-                break
+            while queue:
+                curr_y, curr_x, path = queue.pop(0)
+                curr_dist = abs(curr_y - target_y) + abs(curr_x - target_x)
+                
+                # Return path if we've reached ideal range
+                if curr_dist <= ideal_range:
+                    return path
+                    
+                if (curr_y, curr_x) not in visited:
+                    visited.add((curr_y, curr_x))
+                    
+                    # Check all adjacent squares
+                    for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
+                        ny, nx = curr_y + dy, curr_x + dx
+                        
+                        # Check if position is valid and unoccupied
+                        if (0 <= ny < grid.shape[0]) and \
+                           (0 <= nx < grid.shape[1]) and \
+                           (grid[ny, nx] is None or grid[ny, nx] == 0):
+                            new_path = path + [(ny, nx)]
+                            queue.append((ny, nx, new_path))
+            
+            return []  # Return empty path if no valid path found
 
-            options = []
-            for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
-                ny, nx = my_y + dy, my_x + dx
-                if (0 <= ny < grid.shape[0]) and \
-                (0 <= nx < grid.shape[1]) and \
-                (grid[ny, nx] is None or grid[ny, nx] == 0):
-                    new_dist = abs(ny - target_y) + abs(nx - target_x)
-                    # Only move if it gets us closer to ideal range
-                    if abs(new_dist - ideal_range) < abs(current_dist - ideal_range):
-                        options.append((new_dist, ny, nx))
+        # Find the best path
+        path = find_path()
+        
+        # Move along the path up to speed limit
+        for step in range(min(self.speed, len(path))):
+            my_y, my_x = path[step]
 
-            if not options:
-                break
-
-            options.sort()
-            _, ny, nx = options[0]
-            my_y, my_x = ny, nx
-            steps += 1
-
+        # Update player position
         self.loc = (my_y, my_x)
         grid[my_y, my_x] = self
 

@@ -62,3 +62,52 @@ def test_player_attack_reduces_enemy_health():
     grid[5, 6] = enemy
     damage = player.attack(enemy, grid)
     assert enemy.health == initial_enemy_health - damage, "Enemy health should be reduced by damage amount"
+
+def test_player_pathfinding_direct_route():
+    """Test player can find direct path to target when unobstructed"""
+    grid = np.zeros((10, 10), dtype=object)
+    player = Player(0, 0, "melee")
+    enemy = Enemy(3, 3, "attack_nearest")
+    grid[0, 0] = player
+    grid[3, 3] = enemy
+    
+    player.move_towards(enemy.loc, grid)
+    assert player.loc != (0, 0), "Player should have moved from starting position"
+    assert manhattan_distance(player.loc, enemy.loc) < manhattan_distance((0, 0), enemy.loc), \
+        "Player should have moved closer to enemy"
+
+def test_player_pathfinding_blocked_route():
+    """Test player can find alternate path when direct route is blocked"""
+    grid = np.zeros((5, 5), dtype=object)
+    player = Player(0, 0, "melee")
+    enemy = Player(0, 4, "melee")
+    # Create wall of obstacles blocking direct path
+    grid[0, 1] = Enemy(0, 1, "attack_nearest")
+    grid[0, 2] = Enemy(0, 2, "attack_nearest")
+    grid[0, 3] = Enemy(0, 3, "attack_nearest")
+    
+    grid[0, 0] = player
+    grid[0, 4] = enemy
+    
+    initial_pos = player.loc
+    player.move_towards(enemy.loc, grid)
+    assert player.loc != initial_pos, "Player should find alternate path around obstacles"
+
+def test_player_respects_strategy_range():
+    """Test player maintains appropriate range based on strategy"""
+    grid = np.zeros((10, 10), dtype=object)
+    ranged_player = Player(0, 0, "ranged")
+    enemy = Enemy(5, 5, "attack_nearest")
+    grid[0, 0] = ranged_player
+    grid[5, 5] = enemy
+    
+    ranged_player.move_towards(enemy.loc, grid)
+    final_distance = manhattan_distance(ranged_player.loc, enemy.loc)
+    assert final_distance < ranged_player.attack_range, \
+        "Ranged player should stay within attack range"
+    assert final_distance > 1, \
+        "Ranged player should maintain distance from enemy"
+
+def manhattan_distance(loc1, loc2):
+    """Calculate Manhattan distance between two points"""
+    return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])
