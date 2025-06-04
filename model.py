@@ -12,17 +12,14 @@ class Model(object):
         self.NUM_PLAYERS = 5
         self.NUM_ENEMIES = 10
 
-        self.player_damage_dealt = 0
-        self.enemy_damage_dealt = 0
-
         self.players_killed = 0
         self.enemies_killed = 0
 
         self.grid = np.zeros((self.GRID_Y, self.GRID_X), dtype=object)
         self.initiative_order = self.roll_initiative()
         self.battle_length = 0
-        self.total_damage_dealt = 0
-        self.total_damage_received = 0
+        self.player_damage_dealt = 0
+        self.player_damage_received = 0
         self.player_survival_count = 0
         self.enemy_survival_count = 0
         self.message = "Initiating Battle Sequence..."
@@ -64,8 +61,8 @@ class Model(object):
                 continue
                 
             dmg_dealt, dmg_recieved = agent.do_action(self.grid)
-            self.total_damage_dealt += dmg_dealt
-            self.total_damage_received += dmg_recieved
+            self.player_damage_dealt += dmg_dealt
+            self.player_damage_received += dmg_recieved
             if dmg_dealt > 0 or dmg_recieved > 0:
                 attacks_this_turn += 1
             # Remove dead entities from initiative order
@@ -175,8 +172,8 @@ if __name__ == "__main__":
     model = Model()
     show(model)
     print(f"Battle Length: {model.battle_length}")
-    print(f"Total Damage Dealt: {model.total_damage_dealt}")
-    print(f"Total Damage Received: {model.total_damage_received}")
+    print(f"Total Damage Dealt By Players: {model.player_damage_dealt}")
+    print(f"Total Damage Received By Players: {model.player_damage_received}")
     print(f"Player Survival Count: {model.player_survival_count}")
     print(f"Enemy Survival Count: {model.enemy_survival_count}")
     metrics = model.compute_metrics()
