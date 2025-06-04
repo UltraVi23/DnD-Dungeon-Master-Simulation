@@ -22,7 +22,7 @@ class Model(object):
         self.player_damage_received = 0
         self.player_survival_count = 0
         self.enemy_survival_count = 0
-        self.message = "Initiating Battle Sequence..."
+        self.message = "D&D DM Simulation"
 
         self.turn_living_agents = []
         self.turn_attacks = []
@@ -36,15 +36,22 @@ class Model(object):
         Outputs: 
         initiative (list of Player and Enemy objects in random order)
         """
+        def randPos():
+            """Generate a random position within the grid."""
+            rand_y = np.random.randint(0, self.GRID_Y)
+            rand_x = np.random.randint(0, self.GRID_X)
+            return rand_y, rand_x if self.grid[rand_y, rand_x] == 0 else randPos()
         initiative = []
         # Currently fully random, will overwrite preexisting players and enemies
         for _ in range(self.NUM_PLAYERS):
-            player = Player(np.random.randint(self.GRID_X), np.random.randint(self.GRID_Y), 'melee')
+            new_y, new_x = randPos()
+            player = Player(new_y, new_x, 'melee')
             initiative.append(player)
             self.grid[player.loc[0], player.loc[1]] = player
         
         for _ in range(self.NUM_ENEMIES):
-            enemy = Enemy(np.random.randint(self.GRID_X), np.random.randint(self.GRID_Y), 'attack_strongest')
+            new_y, new_x = randPos()
+            enemy = Enemy(new_y, new_x, 'attack_strongest')
             initiative.append(enemy)
             self.grid[enemy.loc[0], enemy.loc[1]] = enemy
         
@@ -65,11 +72,6 @@ class Model(object):
             self.player_damage_received += dmg_recieved
             if dmg_dealt > 0 or dmg_recieved > 0:
                 attacks_this_turn += 1
-            # Remove dead entities from initiative order
-            self.initiative_order = [
-                entity for entity in self.initiative_order 
-                if entity.health > 0
-            ]
             
             # Update stats
             if isinstance(agent, Player):
@@ -83,6 +85,12 @@ class Model(object):
 
             self.turn_living_agents.append(len(self.get_all_players()) + len(self.get_all_enemies()))
             self.turn_attacks.append(attacks_this_turn)
+            
+        # Remove dead entities from initiative order
+        self.initiative_order = [
+            entity for entity in self.initiative_order 
+            if entity.health > 0
+        ]
 
     def compute_metrics(self):
         tension = np.mean(self.turn_living_agents) if self.turn_living_agents else 0

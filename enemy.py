@@ -2,8 +2,8 @@ import numpy as np
 import time  # Add this import at the top
 
 class Enemy(object):
-    def __init__ (self, loc_x, loc_y, strategy):
-        self.loc = (loc_x, loc_y)
+    def __init__ (self, loc_y, loc_x, strategy):
+        self.loc = (loc_y, loc_x)
         self.strat = strategy # Attack nearest, strongest, weakest, uniform, etc.
         self.health = np.random.randint(30,60)
         self.armor_class = 10
