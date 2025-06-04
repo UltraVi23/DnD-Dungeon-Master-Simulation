@@ -24,6 +24,7 @@ class Model(object):
         self.total_damage_dealt = 0
         self.total_damage_received = 0
         self.player_survival_count = 0
+        self.enemy_survival_count = 0
         self.message = "Initiating Battle Sequence..."
     
     def roll_initiative(self):
@@ -112,6 +113,7 @@ def show(model):
         model.update_grid_state()
         model.battle_length += 1
         model.player_survival_count = len(model.get_all_players())
+        model.enemy_survival_count = len(model.get_all_enemies())
         visualize_grid(model.grid, message=model.message, ax=ax, pause=0.1)
         
         # Check if battle should end
@@ -131,3 +133,4 @@ if __name__ == "__main__":
     print(f"Total Damage Dealt: {model.total_damage_dealt}")
     print(f"Total Damage Received: {model.total_damage_received}")
     print(f"Player Survival Count: {model.player_survival_count}")
+    print(f"Enemy Survival Count: {model.enemy_survival_count}")
