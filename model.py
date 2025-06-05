@@ -15,6 +15,8 @@ class Model(object):
         self.players_killed = 0
         self.enemies_killed = 0
 
+        self.enemy_strategy = 'attack_nearest'  # Default enemy strategy
+        self.enemy_max_health = 60  # Max health for enemies
         self.grid = np.zeros((self.GRID_Y, self.GRID_X), dtype=object)
         self.initiative_order = self.roll_initiative()
         self.battle_length = 0
@@ -51,7 +53,7 @@ class Model(object):
         
         for _ in range(self.NUM_ENEMIES):
             new_y, new_x = randPos()
-            enemy = Enemy(new_y, new_x, 'attack_strongest')
+            enemy = Enemy(new_y, new_x, self.enemy_strategy, max_health=self.enemy_max_health)
             initiative.append(enemy)
             self.grid[enemy.loc[0], enemy.loc[1]] = enemy
         
@@ -85,7 +87,7 @@ class Model(object):
 
             self.turn_living_agents.append(len(self.get_all_players()) + len(self.get_all_enemies()))
             self.turn_attacks.append(attacks_this_turn)
-            
+
         # Remove dead entities from initiative order
         self.initiative_order = [
             entity for entity in self.initiative_order 
@@ -93,14 +95,16 @@ class Model(object):
         ]
 
     def compute_metrics(self):
-        tension = np.mean(self.turn_living_agents) if self.turn_living_agents else 0
-        fairness = (self.player_survival_count / (self.player_survival_count + self.enemy_survival_count)
-                    if (self.player_survival_count + self.enemy_survival_count) > 0 else 0)
-        engagement = np.mean(self.turn_attacks) if self.turn_attacks else 0
+        avg_attacks_per_turn = np.mean(self.turn_attacks) if self.turn_attacks else 0
+        avg_entities_alive = np.mean(self.turn_living_agents) if self.turn_living_agents else 0
         return {
-            "Tension": tension,
-            "Fairness": fairness,
-            "Engagement": engagement
+            "Total Damage Dealt by Players": self.player_damage_dealt,
+            "Total Damage Dealt by Enemies": self.player_damage_received,
+            "Rounds Taken": self.battle_length,
+            "Avg Attacks per Turn": avg_attacks_per_turn,
+            "Avg Entities Alive per Turn": avg_entities_alive,
+            "Players Survived": len(self.get_all_players()),
+            "Enemies Survived": len(self.get_all_enemies())
         }
 
     def update_grid_state(self):
@@ -131,7 +135,7 @@ def show(model, visualize = True):
         fig, ax = plt.subplots(figsize=(8, 8))
         plt.show()
 
-    # Simulation loop
+    # Simulation loop 
     while True:
         model.execute_turns()
         model.update_grid_state()
@@ -143,50 +147,90 @@ def show(model, visualize = True):
         
         # Check if battle should end
         if len(model.get_all_players()) == 0:
-            print("All players defeated. Enemies win.")
+            # print("All players defeated. Enemies win.")
             break
         if len(model.get_all_enemies()) == 0:
-            print("All enemies defeated. Players win!")
+            # print("All enemies defeated. Players win!")
             break
     if visualize:  
         plt.close(fig)
     
-def batch_simulation(num_runs=10, num_players=5, num_enemies=10):
+def batch_simulation(num_runs=10, num_players=5, num_enemies=10, enemy_strategy='attack_nearest', enemy_max_health=60):
     results = []
     for i in range(num_runs):
         model = Model()
         model.NUM_PLAYERS = num_players
         model.NUM_ENEMIES = num_enemies
+        model.enemy_strategy = enemy_strategy
+        model.enemy_max_health = enemy_max_health
         model.grid = np.zeros((model.GRID_Y, model.GRID_X), dtype=object)
         model.initiative_order = model.roll_initiative()
-        show(model, visualize=False)  # Run without visualization for batch simulation
+        show(model, visualize=False)
         metrics = model.compute_metrics()
         results.append(metrics)
-    print("\nBatch Simulation Results:")
-    for i, m in enumerate(results):
-        print(f"Run {i+1}:")
-        print(f"  Tension   : {float(m['Tension']):.2f} (avg. living agents per turn)")
-        print(f"  Fairness  : {float(m['Fairness']):.2f} (1=all players survive, 0=all enemies survive)")
-        print(f"  Engagement: {float(m['Engagement']):.2f} (avg. attacks per turn)")
-    # Compute averages
     avg_metrics = {k: float(np.mean([m[k] for m in results])) for k in results[0]}
-    print("\nAverage Metrics (across all runs):")
-    print(f"  Tension   : {avg_metrics['Tension']:.2f} (avg. living agents per turn)")
-    print(f"  Fairness  : {avg_metrics['Fairness']:.2f} (1=all players survive, 0=all enemies survive)")
-    print(f"  Engagement: {avg_metrics['Engagement']:.2f} (avg. attacks per turn)")
+    return avg_metrics
 
+def experiment_varying_enemies_and_health(
+    num_runs=3, 
+    num_players=5, 
+    enemy_numbers=[1, 5, 10], 
+    enemy_strategies=['attack_nearest', 'attack_sxtrongest', 'attack_weakest', 'attack_uniform'], 
+    enemy_healths=[30, 60, 120]
+):
+    results = []
+    for strategy in enemy_strategies:
+        for health in enemy_healths:
+            for num_enemies in enemy_numbers:
+                avg_metrics = batch_simulation(
+                    num_runs=num_runs,
+                    num_players=num_players,
+                    num_enemies=num_enemies,
+                    enemy_strategy=strategy,
+                    enemy_max_health=health
+                )
+                results.append({
+                    'strategy': strategy,
+                    'health': health,
+                    'num_enemies': num_enemies,
+                    **avg_metrics
+                })
+    # Plotting
+    for metric in [
+    "Total Damage Dealt by Players",
+    "Total Damage Dealt by Enemies",
+    "Rounds Taken",
+    "Avg Attacks per Turn",
+    "Avg Entities Alive per Turn",
+    "Players Survived",
+    "Enemies Survived"
+    ]:
+        plt.figure(figsize=(10, 6))
+        for strategy in enemy_strategies:
+            for health in enemy_healths:
+                x = [r['num_enemies'] for r in results if r['strategy'] == strategy and r['health'] == health]
+                y = [r[metric] for r in results if r['strategy'] == strategy and r['health'] == health]
+                plt.plot(x, y, marker='o', label=f"{strategy}, HP={health}")
+        plt.title(f"{metric} vs Number of Enemies")
+        plt.xlabel("Number of Enemies")
+        plt.ylabel(metric)
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
 
 if __name__ == "__main__":
-    model = Model()
-    show(model)
-    print(f"Battle Length: {model.battle_length}")
-    print(f"Total Damage Dealt By Players: {model.player_damage_dealt}")
-    print(f"Total Damage Received By Players: {model.player_damage_received}")
-    print(f"Player Survival Count: {model.player_survival_count}")
-    print(f"Enemy Survival Count: {model.enemy_survival_count}")
-    metrics = model.compute_metrics()
-    print("  Tension   : {:.2f} (avg. living agents per turn)".format(float(metrics['Tension'])))
-    print("  Fairness  : {:.2f} (1=all players survive, 0=all enemies survive)".format(float(metrics['Fairness'])))
-    print("  Engagement: {:.2f} (avg. attacks per turn)".format(float(metrics['Engagement'])))
+    # model = Model()
+    # show(model)
+    # print(f"Battle Length: {model.battle_length}")
+    # print(f"Total Damage Dealt By Players: {model.player_damage_dealt}")
+    # print(f"Total Damage Received By Players: {model.player_damage_received}")
+    # print(f"Player Survival Count: {model.player_survival_count}")
+    # print(f"Enemy Survival Count: {model.enemy_survival_count}")
+    # metrics = model.compute_metrics()
+    # print("  Tension   : {:.2f} (avg. living agents per turn)".format(float(metrics['Tension'])))
+    # print("  Fairness  : {:.2f} (1=all players survive, 0=all enemies survive)".format(float(metrics['Fairness'])))
+    # print("  Engagement: {:.2f} (avg. attacks per turn)".format(float(metrics['Engagement'])))
 
-    batch_simulation(num_runs=5, num_players=5, num_enemies=10)
+    # batch_simulation(num_runs=5, num_players=5, num_enemies=10)
+
+    experiment_varying_enemies_and_health()

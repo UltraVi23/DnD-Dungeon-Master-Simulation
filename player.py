@@ -87,10 +87,11 @@ class Player(object):
         min_dist = float('inf')
         nearest = None
         for enemy in enemies:
-            dist = manhattan(self.loc, enemy.loc)
-            if dist < min_dist:
-                min_dist = dist
-                nearest = enemy
+            if enemy.health <= 0 or enemy.loc is None:
+                dist = manhattan(self.loc, enemy.loc)
+                if dist < min_dist:
+                    min_dist = dist
+                    nearest = enemy
         return nearest
 
     def attack(self, enemy, grid):
