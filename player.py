@@ -3,21 +3,24 @@ import time  # Add this import at the top
 
 class Player(object):
     def __init__(self, loc_y, loc_x, strategy):
+        
+        # Initialize player location
         self.loc = (loc_y, loc_x)
 
-        self.strat = strategy # Melee or ranged
-        self.health = np.random.randint(30,60)
+        # Strategy for player: Either "melee" or "ranged"
+        self.strat = strategy
 
-        self.armor_class = 14
-        self.proficiency_bonus = 2
-        self.strength = 4
+        # Player stats
+        self.health = np.random.randint(30,60) # Random health between 30 and 60
+        self.armor_class = 14 # Number that must be rolled on attack to hit
+        self.proficiency_bonus = 2 # Proficiency bonus for attacks - Players have +2 by default
+        self.strength = 4 # Damage bonus for attacks
         if(self.strat == "melee"):
-            self.damage_die = 8
+            self.damage_die = 8 # Damage die for melee attacks (d8)
             self.attack_range = 1 # distance that a melee attack can reach
         elif(self.strat == "ranged"):
-            self.damage_die = 4
+            self.damage_die = 4 # Damage die for ranged attacks (d4)
             self.attack_range = 12 # distance that a ranged attack can reach
-        
         self.speed = 6 # number of grids not feet: 1 grid = 5 feet
 
     def roll(self, die, plus):

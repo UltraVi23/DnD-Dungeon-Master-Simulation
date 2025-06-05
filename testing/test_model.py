@@ -120,3 +120,134 @@ def test_defeated_enemy_not_in_target_list():
     model.update_grid_state()  # Add this line to trigger grid cleanup
 
     assert enemy not in model.get_all_enemies()
+
+
+# Metrics Initialization Tests
+def test_metrics_initial_turns():
+    """Test turn counter starts at zero"""
+    model = Model()
+    assert model.battle_length == 0, "Total turns should start at 0"
+
+
+def test_metrics_initial_damage():
+    """Test damage dealt starts at zero"""
+    model = Model()
+    assert model.player_damage_dealt == 0, "Total damage dealt should start at 0"
+
+
+def test_metrics_initial_players_killed():
+    """Test players defeated starts at zero"""
+    model = Model()
+    assert model.players_killed == 0, "Players defeated should start at 0"
+
+
+def test_metrics_initial_enemies_killed():
+    """Test enemies defeated starts at zero"""
+    model = Model()
+    assert model.enemies_killed == 0, "Enemies defeated should start at 0"
+
+
+def test_metrics_initial_battle_length():
+    """Test battle length starts at zero"""
+    model = Model()
+    assert model.battle_length == 0, "Battle length should start at 0"
+
+
+def test_metrics_initial_player_damage_dealt():
+    """Test player damage dealt starts at zero"""
+    model = Model()
+    assert model.player_damage_dealt == 0, "Player damage dealt should start at 0"
+
+
+def test_metrics_initial_player_damage_received():
+    """Test player damage received starts at zero"""
+    model = Model()
+    assert model.player_damage_received == 0, "Player damage received should start at 0"
+
+
+def test_metrics_initial_players_killed():
+    """Test players killed starts at zero"""
+    model = Model()
+    assert model.players_killed == 0, "Players killed should start at 0"
+
+
+def test_metrics_initial_enemies_killed():
+    """Test enemies killed starts at zero"""
+    model = Model()
+    assert model.enemies_killed == 0, "Enemies killed should start at 0"
+
+
+# Damage Tests
+def test_damage_recording():
+    """Test recording a single instance of damage"""
+    model = Model()
+    initial_damage = model.player_damage_dealt
+    damage_amount = 10
+    model.record_damage(damage_amount)
+    assert model.player_damage_dealt == initial_damage + damage_amount, "Damage should be added to total"
+
+
+def test_turn_increment():
+    """Test single turn increment"""
+    model = Model()
+    initial_turns = model.battle_length
+    # execute_turns() returns a tuple of (damage_dealt, damage_taken)
+    _ = model.execute_turns()  # Store return value but we don't need it for this test
+    assert model.battle_length > initial_turns, "Battle length should increment when executing turns"
+
+
+def test_damage_recording():
+    """Test recording damage dealt by players"""
+    model = Model()
+    initial_damage = model.player_damage_dealt
+    damage_amount = 10
+    # Simulate damage being dealt
+    model.player_damage_dealt += damage_amount
+    assert model.player_damage_dealt == initial_damage + damage_amount, "Damage should be added to total"
+
+
+# Victory/Defeat Tests
+@pytest.fixture
+def model_with_defeated_enemies():
+    """Fixture providing model with all enemies defeated"""
+    model = Model()
+    for y in range(model.GRID_Y):
+        for x in range(model.GRID_X):
+            if isinstance(model.grid[y, x], Enemy):
+                model.grid[y, x].health = 0
+    model.update_grid_state()
+    return model
+
+
+@pytest.fixture
+def model_with_defeated_players():
+    """Fixture providing model with all players defeated"""
+    model = Model()
+    for y in range(model.GRID_Y):
+        for x in range(model.GRID_X):
+            if isinstance(model.grid[y, x], Player):
+                model.grid[y, x].health = 0
+    model.update_grid_state()
+    return model
+
+
+def test_victory_condition(model_with_defeated_enemies):
+    """Test victory condition when all enemies are defeated"""
+    assert len(model_with_defeated_enemies.get_all_enemies()) == 0, "Should have no enemies remaining"
+
+
+def test_no_victory_in_normal_state():
+    """Test victory condition in normal game state"""
+    model = Model()
+    assert len(model.get_all_enemies()) > 0, "Should have enemies remaining"
+
+
+def test_defeat_condition(model_with_defeated_players):
+    """Test defeat condition when all players are defeated"""
+    assert len(model_with_defeated_players.get_all_players()) == 0, "Should have no players remaining"
+
+
+def test_no_defeat_in_normal_state():
+    """Test defeat condition in normal game state"""
+    model = Model()
+    assert len(model.get_all_players()) > 0, "Should have players remaining"

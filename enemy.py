@@ -4,14 +4,17 @@ import time  # Add this import at the top
 class Enemy(object):
     def __init__ (self, loc_y, loc_x, strategy, max_health=60):
         self.loc = (loc_y, loc_x)
-        self.strat = strategy # Attack nearest, strongest, weakest, uniform, etc.
-        self.health = np.random.randint(30,60)
-        self.armor_class = 10
 
-        self.strength = 4
-        self.damage_die = 8
-        self.speed = 6 # number of grids not feet: 1 grid = 5 feet
-        self.proficiency_bonus = 0
+        # Strategy for enemy: Either "attack_nearest", "attack_strongest", "attack_weakest", or "attack_uniform"
+        self.strat = strategy
+
+        # Enemy stats
+        self.health = np.random.randint(30,60) # Random health between 30 and 60
+        self.armor_class = 10 # Number that must be rolled on attack to hit
+        self.strength = 4 # Damage bonus for attacks
+        self.damage_die = 8 # Damage die for attacks (d8)
+        self.speed = 6 # Number of grids not feet: 1 grid = 5 feet
+        self.proficiency_bonus = 0 # Proficiency bonus for attacks - Enemies have no proficiency by default
 
     def roll(self, die, plus):
         """
