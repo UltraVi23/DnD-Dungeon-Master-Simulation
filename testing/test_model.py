@@ -11,12 +11,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def test_model_grid_x_initialization():
     model = Model()
-    assert model.GRID_X == 100, "GRID_X should be initialized to 100"
+    assert model.GRID_X == 20, "GRID_X should be initialized to 20"
 
 
 def test_model_grid_y_initialization():
     model = Model()
-    assert model.GRID_Y == 100, "GRID_Y should be initialized to 100"
+    assert model.GRID_Y == 20, "GRID_Y should be initialized to 20"
 
 
 def test_model_num_players_initialization():
@@ -191,9 +191,9 @@ def test_turn_increment():
     """Test single turn increment"""
     model = Model()
     initial_turns = model.battle_length
-    # execute_turns() returns a tuple of (damage_dealt, damage_taken)
-    _ = model.execute_turns()  # Store return value but we don't need it for this test
-    assert model.battle_length > initial_turns, "Battle length should increment when executing turns"
+    model.execute_turns()
+    final_turns = model.battle_length
+    assert final_turns == initial_turns + 1, "Battle length should increment by 1 after executing a turn"
 
 
 def test_damage_recording():
