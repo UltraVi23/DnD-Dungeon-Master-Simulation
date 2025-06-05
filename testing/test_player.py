@@ -228,6 +228,78 @@ def test_player_no_double_move_when_adjacent():
     distance_moved = manhattan_distance(initial_pos, player.loc)
     assert distance_moved <= normal_speed, "Player should not move more than normal speed when adjacent to enemy"
 
+def test_critical_hit_on_natural_20():
+    """Test that attack is recognized as critical hit on natural 20"""
+    grid = np.zeros((10, 10), dtype=object)
+    player = Player(5, 5, "melee")
+    enemy = Enemy(5, 6, "attack_nearest")
+    grid[5, 5] = player
+    grid[5, 6] = enemy
+    
+    original_roll = player.roll
+    def mock_roll(die, plus):
+        if die == 20:  # Attack roll
+            return 20  # Natural 20
+        if die == 8:  # Damage die (d8)
+            return 4  # Consistent damage roll
+        return 0  # For any other rolls
+    
+    try:
+        player.roll = mock_roll
+        damage = player.attack(enemy, grid)
+        # Calculate expected damage: (damage_dice * 2) + strength
+        expected_damage = (4 * 2) + player.strength
+        assert damage == expected_damage, "Critical hit should double dice damage before adding strength"
+    finally:
+        player.roll = original_roll
+
+def test_critical_hit_reduces_enemy_health_double():
+    """Test that critical hit reduces enemy health by double damage dice"""
+    grid = np.zeros((10, 10), dtype=object)
+    player = Player(5, 5, "melee")
+    enemy = Enemy(5, 6, "attack_nearest")
+    grid[5, 5] = player
+    grid[5, 6] = enemy
+    
+    initial_health = enemy.health
+    original_roll = player.roll
+    def mock_roll(die, plus):
+        if die == 20:  # Attack roll
+            return 20  # Natural 20
+        if die == 8:  # Damage die (d8)
+            return 4  # Consistent damage roll
+        return 0  # For any other rolls
+    
+    try:
+        player.roll = mock_roll
+        player.attack(enemy, grid)
+        expected_health = initial_health - ((4 * 2) + player.strength)
+        assert enemy.health == expected_health, "Critical hit should double dice damage before adding strength"
+    finally:
+        player.roll = original_roll
+
+def test_non_critical_hit_normal_damage():
+    """Test that non-critical hits deal normal damage"""
+    grid = np.zeros((10, 10), dtype=object)
+    player = Player(5, 5, "melee")
+    enemy = Enemy(5, 6, "attack_nearest")
+    grid[5, 5] = player
+    grid[5, 6] = enemy
+    
+    original_roll = player.roll
+    def mock_roll(die, plus):
+        if die == 20:  # Attack roll
+            return 15 + plus  # Non-critical hit
+        return 1  # Minimum damage for consistent testing
+    
+    try:
+        player.roll = mock_roll
+        damage = player.attack(enemy, grid)
+        expected_damage = 1 + player.strength  # Normal damage
+        assert damage == expected_damage, "Non-critical hit should deal normal damage"
+    finally:
+        player.roll = original_roll
+
 def manhattan_distance(loc1, loc2):
     """Calculate Manhattan distance between two points"""
     return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])

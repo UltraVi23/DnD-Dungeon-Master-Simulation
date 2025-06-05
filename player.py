@@ -98,20 +98,29 @@ class Player(object):
 
     def attack(self, enemy, grid):
         """
-        This function simulates attacking an enemy, dealing damage based on the players's damage dice.
+        This function simulates attacking an enemy, dealing damage based on the player's damage dice.
+        Returns the amount of damage dealt.
         """
-        roll_to_hit = self.roll(20, self.strength + self.proficiency_bonus)
+        # Get the raw d20 roll before modifiers
+        raw_roll = self.roll(20, 0)
+        attack_roll = raw_roll + self.strength + self.proficiency_bonus
         damage = 0
-
-        if(roll_to_hit >= enemy.armor_class):
-            damage = self.roll(self.damage_die, self.strength)
-            if(roll_to_hit - self.strength == 20):
-                damage *= 2
+        
+        # Check if attack hits (either meets AC or is natural 20)
+        is_critical = raw_roll == 20
+        if is_critical or attack_roll >= enemy.armor_class:
+            # Roll base damage
+            damage_roll = self.roll(self.damage_die, 0)
+            
+            # On critical hit, double the damage roll (not the modifier)
+            if is_critical:
+                damage = (damage_roll * 2) + self.strength
+            else:
+                damage = damage_roll + self.strength
+                
+            # Apply damage to enemy
             enemy.health -= damage
             
-            if enemy.health <= 0:
-                ex, ey = enemy.loc
-                grid[ey, ex] = None
         return damage
 
     def move_towards(self, target_loc, grid):
