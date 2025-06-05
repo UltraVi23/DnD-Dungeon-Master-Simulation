@@ -11,12 +11,12 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def test_model_grid_x_initialization():
     model = Model()
-    assert model.GRID_X == 20, "GRID_X should be initialized to 20"
+    assert model.GRID_X == 100, "GRID_X should be initialized to 100"
 
 
 def test_model_grid_y_initialization():
     model = Model()
-    assert model.GRID_Y == 20, "GRID_Y should be initialized to 20"
+    assert model.GRID_Y == 100, "GRID_Y should be initialized to 100"
 
 
 def test_model_num_players_initialization():
