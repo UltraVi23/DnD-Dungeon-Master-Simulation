@@ -235,7 +235,9 @@ def experiment_varying_enemies_and_health(
         plt.ylabel(metric)
         plt.legend()
         plt.tight_layout()
-        plt.show()
+        plt.savefig(f"{metric.replace(' ', '_')}_vs_num_enemies.png")
+        plt.close()
+        # plt.show()
 
 if __name__ == "__main__":
     # model = Model()

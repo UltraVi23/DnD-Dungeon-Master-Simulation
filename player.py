@@ -130,6 +130,7 @@ class Player(object):
         """
         my_y, my_x = self.loc
         target_y, target_x = target_loc
+        original_y, original_x = my_y, my_x  # Save original position
 
         # Remove self from current position
         grid[my_y, my_x] = None
@@ -168,9 +169,13 @@ class Player(object):
         # Find the best path
         path = find_path()
         
-        # Move along the path up to speed limit
-        for step in range(min(self.speed, len(path))):
-            my_y, my_x = path[step]
+        if path:
+            # Move along the path up to speed limit
+            for step in range(min(self.speed, len(path))):
+                my_y, my_x = path[step]
+        else:
+            # If no path found, return to original position
+            my_y, my_x = original_y, original_x
 
         # Update player position
         self.loc = (my_y, my_x)
