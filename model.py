@@ -5,20 +5,20 @@ import matplotlib.pyplot as plt
 from visualize import visualize_grid
 
 class Model(object):
-    def __init__(self):
+    def __init__(self, num_players=5, num_enemies=10, enemy_strategy='attack_nearest', enemy_max_health=60):
         # Grid dimensions
         self.GRID_X = 100
         self.GRID_Y = 100
 
         # Number of players and enemies
-        self.NUM_PLAYERS = 5
-        self.NUM_ENEMIES = 10
+        self.NUM_PLAYERS = num_players
+        self.NUM_ENEMIES = num_enemies
 
         self.players_killed = 0
         self.enemies_killed = 0
 
-        self.enemy_strategy = 'attack_nearest'  # Default enemy strategy
-        self.enemy_max_health = 60  # Max health for enemies
+        self.enemy_strategy = enemy_strategy  # Default enemy strategy
+        self.enemy_max_health = enemy_max_health  # Max health for enemies
         self.grid = np.zeros((self.GRID_Y, self.GRID_X), dtype=object)
 
         # Initiative order
@@ -176,11 +176,7 @@ def batch_simulation(num_runs=10, num_players=5, num_enemies=10, enemy_strategy=
     results = []
     player_wins = 0
     for i in range(num_runs):
-        model = Model()
-        model.NUM_PLAYERS = num_players
-        model.NUM_ENEMIES = num_enemies
-        model.enemy_strategy = enemy_strategy
-        model.enemy_max_health = enemy_max_health
+        model = Model(num_players=num_players, num_enemies=num_enemies, enemy_strategy=enemy_strategy, enemy_max_health=enemy_max_health)
         model.grid = np.zeros((model.GRID_Y, model.GRID_X), dtype=object)
         model.initiative_order = model.roll_initiative()
         show(model, visualize=False)
@@ -247,27 +243,23 @@ def experiment_varying_enemies_and_health(
 
 if __name__ == "__main__":
     # Uncomment to run the live demo
-    # model = Model()
-    # model.NUM_ENEMIES = 10
-    # model.enemy_max_health = 30
-    # show(model)
-    # metrics = model.compute_metrics()
-    # for key, value in metrics.items():  # Changed from metrics to metrics.items()
-    #     if isinstance(value, float):
-    #         print(f"{key}: {value:.2f}")
-    #     else:
-    #         print(f"{key}: {value}")
+    model = Model(num_enemies=10, enemy_max_health=60)
+    show(model)
+    metrics = model.compute_metrics()
+    for key, value in metrics.items():
+        if isinstance(value, float):
+            print(f"{key}: {value:.2f}")
+        else:
+            print(f"{key}: {value}")
 
-    # model = Model()
-    # model.NUM_ENEMIES = 5
-    # model.enemy_max_health = 120
-    # show(model)
-    # metrics = model.compute_metrics()
-    # for key, value in metrics.items():  # Changed from metrics to metrics.items()
-    #     if isinstance(value, float):
-    #         print(f"{key}: {value:.2f}")
-    #     else:
-    #         print(f"{key}: {value}")
+    model = Model(num_enemies=5, enemy_max_health=120)
+    show(model)
+    metrics = model.compute_metrics()
+    for key, value in metrics.items():
+        if isinstance(value, float):
+            print(f"{key}: {value:.2f}")
+        else:
+            print(f"{key}: {value}")
 
     # Uncomment to run a batch simulation
     # batch_simulation(num_runs=5, num_players=5, num_enemies=10)
