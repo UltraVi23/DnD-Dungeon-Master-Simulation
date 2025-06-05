@@ -25,7 +25,7 @@ class Model(object):
         self.initiative_order = self.roll_initiative()
 
         # Battle statistics
-        self.battle_length = 0
+        self.battle_length = 0 # Tracks full rounds, not individual turns
         self.players_killed = 0
         self.enemies_killed = 0
         self.player_damage_dealt = 0
@@ -43,38 +43,44 @@ class Model(object):
     def roll_initiative(self):
         """
         This function rolls initiative for the combat, or the order in which players and enemies will attack.
-
-        Inputs: 
-        Self
-        Outputs: 
-        initiative (list of Player and Enemy objects in random order)
         """
+
         def randPos():
             """Generate a random position within the grid."""
             rand_y = np.random.randint(0, self.GRID_Y)
             rand_x = np.random.randint(0, self.GRID_X)
             return rand_y, rand_x if self.grid[rand_y, rand_x] == 0 else randPos()
+        
         initiative = []
-        # Currently fully random, will overwrite preexisting players and enemies
+        # Initialize grid with zeros
+        self.grid = np.zeros((self.GRID_Y, self.GRID_X), dtype=object)
+        
+        placed_enemies = 0
+        while placed_enemies < self.NUM_ENEMIES:
+            y = np.random.randint(0, self.GRID_Y)
+            x = np.random.randint(0, self.GRID_X)
+            if self.grid[y, x] == 0:  # Only place enemy if position is empty
+                enemy = Enemy(y, x, self.enemy_strategy, max_health=self.enemy_max_health)
+                initiative.append(enemy)
+                self.grid[y, x] = enemy
+                placed_enemies += 1
+        
+        # Place exactly NUM_PLAYERS players
         for _ in range(self.NUM_PLAYERS):
             new_y, new_x = randPos()
             player = Player(new_y, new_x, 'melee')
             initiative.append(player)
             self.grid[player.loc[0], player.loc[1]] = player
         
-        for _ in range(self.NUM_ENEMIES):
-            new_y, new_x = randPos()
-            enemy = Enemy(new_y, new_x, self.enemy_strategy, max_health=self.enemy_max_health)
-            initiative.append(enemy)
-            self.grid[enemy.loc[0], enemy.loc[1]] = enemy
-        
         np.random.shuffle(initiative)
         return initiative
 
     def execute_turns(self):
+        """Execute a single turn"""
         # Create a copy since we'll be modifying the list while iterating
         current_initiative = self.initiative_order.copy()
         attacks_this_turn = 0
+        
         for agent in current_initiative:
             # Skip if agent is already dead
             if agent.health <= 0:
@@ -93,11 +99,12 @@ class Model(object):
             elif isinstance(agent, Enemy):
                 if agent.health <= 0:
                     self.enemies_killed += 1
-                    
-            self.battle_length += 1
-
-            self.turn_living_agents.append(len(self.get_all_players()) + len(self.get_all_enemies()))
-            self.turn_attacks.append(attacks_this_turn)
+    
+        # Increment battle length once per full turn
+        self.battle_length += 1
+        
+        self.turn_living_agents.append(len(self.get_all_players()) + len(self.get_all_enemies()))
+        self.turn_attacks.append(attacks_this_turn)
 
         # Remove dead entities from initiative order
         self.initiative_order = [
@@ -126,7 +133,7 @@ class Model(object):
             for x in range(self.GRID_X):
                 entity = self.grid[y, x]
                 if isinstance(entity, (Player, Enemy)) and entity.health <= 0:
-                    self.grid[y, x] = None
+                    self.grid[y, x] = 0  # Use 0 instead of None for numpy array
 
     def get_all_players(self):
         """Returns a list of all living players in the grid"""

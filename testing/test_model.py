@@ -41,9 +41,10 @@ def test_model_player_count():
 
 
 def test_model_enemy_count():
+    """Test that enemy count matches NUM_ENEMIES immediately after initialization"""
     model = Model()
     enemy_count = sum(1 for x in model.grid.flat if isinstance(x, Enemy))
-    assert enemy_count == model.NUM_ENEMIES, "Grid should contain correct number of enemies"
+    assert enemy_count == model.NUM_ENEMIES, f"Grid should contain {model.NUM_ENEMIES} enemies, but found {enemy_count}"
 
 
 def test_defeated_player_removed_from_grid():
@@ -60,10 +61,9 @@ def test_defeated_player_removed_from_grid():
 
     player = model.grid[player_pos]
     player.health = 0
-    model.update_grid_state()  # Add this line to trigger grid cleanup
-
-    assert model.grid[player_pos] is None
-
+    model.update_grid_state()
+    
+    assert model.grid[player_pos] == 0, "Defeated player should be removed from grid"
 
 def test_defeated_player_not_in_target_list():
     """Test that a defeated player is not targetable by enemies"""
@@ -74,9 +74,9 @@ def test_defeated_player_not_in_target_list():
         if isinstance(model.grid[y, x], Player)
     ), None)
 
-    if player_pos is None:
-        pytest.skip("No player found in grid")
-
+    def test_model_enemy_count_after_initialization():
+        """Test that enemy count matches NUM_ENEMIES immediately after initialization"""
+        model = Model()
     player = model.grid[player_pos]
     player.health = 0
     model.update_grid_state()  # Add this line to trigger grid cleanup
@@ -98,10 +98,9 @@ def test_defeated_enemy_removed_from_grid():
 
     enemy = model.grid[enemy_pos]
     enemy.health = 0
-    model.update_grid_state()  # Add this line to trigger grid cleanup
-
-    assert model.grid[enemy_pos] is None
-
+    model.update_grid_state()
+    
+    assert model.grid[enemy_pos] == 0, "Defeated enemy should be removed from grid"
 
 def test_defeated_enemy_not_in_target_list():
     """Test that a defeated enemy is not targetable by players"""
@@ -126,6 +125,7 @@ def test_defeated_enemy_not_in_target_list():
 def test_metrics_initial_turns():
     """Test turn counter starts at zero"""
     model = Model()
+    assert isinstance(model.battle_length, (int, np.integer)), "Battle length should be an integer type"
     assert model.battle_length == 0, "Total turns should start at 0"
 
 
@@ -190,10 +190,10 @@ def test_damage_recording():
 def test_turn_increment():
     """Test single turn increment"""
     model = Model()
-    initial_turns = model.battle_length
+    initial_turns = int(model.battle_length)  # Ensure we have an integer
     model.execute_turns()
-    final_turns = model.battle_length
-    assert final_turns == initial_turns + 1, "Battle length should increment by 1 after executing a turn"
+    assert isinstance(model.battle_length, (int, np.integer)), "Battle length should be an integer type"
+    assert model.battle_length == initial_turns + 1, "Battle length should increment by 1 after executing a turn"
 
 
 def test_damage_recording():
