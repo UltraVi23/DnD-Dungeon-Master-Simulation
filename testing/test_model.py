@@ -191,7 +191,8 @@ def test_turn_increment():
     """Test single turn increment"""
     model = Model()
     initial_turns = model.battle_length
-    model.execute_turns()
+    # execute_turns() returns a tuple of (damage_dealt, damage_taken)
+    _ = model.execute_turns()  # Store return value but we don't need it for this test
     assert model.battle_length > initial_turns, "Battle length should increment when executing turns"
 
 
