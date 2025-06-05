@@ -108,6 +108,66 @@ def test_player_respects_strategy_range():
     assert final_distance > 1, \
         "Ranged player should maintain distance from enemy"
 
+def test_player_double_move_when_not_adjacent():
+    """Test that player moves twice when not adjacent to enemy"""
+    grid = np.zeros((20, 20), dtype=object)
+    player = Player(0, 0, "melee")
+    enemy = Enemy(12, 0, "attack_nearest")
+    grid[0, 0] = player
+    grid[12, 0] = enemy
+    
+    initial_pos = player.loc
+    normal_speed = player.speed
+    player.do_action(grid)
+    
+    distance_moved = manhattan_distance(initial_pos, player.loc)
+    assert distance_moved > normal_speed, "Player should move more than normal speed when not adjacent to enemy"
+
+def test_player_double_move_limit():
+    """Test that double move respects maximum movement limit"""
+    grid = np.zeros((20, 20), dtype=object)
+    player = Player(0, 0, "melee")
+    enemy = Enemy(12, 0, "attack_nearest")
+    grid[0, 0] = player
+    grid[12, 0] = enemy
+    
+    initial_pos = player.loc
+    normal_speed = player.speed
+    player.do_action(grid)
+    
+    distance_moved = manhattan_distance(initial_pos, player.loc)
+    assert distance_moved <= normal_speed * 2, "Player should not move more than double speed"
+
+def test_player_double_move_towards_enemy():
+    """Test that double move brings player closer to enemy"""
+    grid = np.zeros((20, 20), dtype=object)
+    player = Player(0, 0, "melee")
+    enemy = Enemy(12, 0, "attack_nearest")
+    grid[0, 0] = player
+    grid[12, 0] = enemy
+    
+    initial_distance = manhattan_distance(player.loc, enemy.loc)
+    player.do_action(grid)
+    final_distance = manhattan_distance(player.loc, enemy.loc)
+    
+    assert final_distance < initial_distance, "Player should move closer to enemy when not adjacent"
+
+def test_player_no_double_move_when_adjacent():
+    """Test that player doesn't double move when able to move adjacent to enemy"""
+    grid = np.zeros((20, 20), dtype=object)
+    player = Player(0, 0, "melee")
+    # Place enemy one spot away from the player
+    enemy = Enemy(0, 2, "attack_nearest")
+    grid[0, 0] = player
+    grid[0, 1] = enemy
+    
+    initial_pos = player.loc
+    normal_speed = player.speed
+    player.do_action(grid)
+    
+    distance_moved = manhattan_distance(initial_pos, player.loc)
+    assert distance_moved <= normal_speed, "Player should not move more than normal speed when adjacent to enemy"
+
 def manhattan_distance(loc1, loc2):
     """Calculate Manhattan distance between two points"""
     return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])
