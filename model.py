@@ -7,8 +7,8 @@ from visualize import visualize_grid
 class Model(object):
     def __init__(self):
         # Grid dimensions
-        self.GRID_X = 20
-        self.GRID_Y = 20
+        self.GRID_X = 100
+        self.GRID_Y = 100
 
         # Number of players and enemies
         self.NUM_PLAYERS = 5
@@ -195,11 +195,11 @@ def batch_simulation(num_runs=10, num_players=5, num_enemies=10, enemy_strategy=
     return avg_metrics
 
 def experiment_varying_enemies_and_health(
-    num_runs=2, 
+    num_runs=5, 
     num_players=5, 
-    enemy_numbers=[1, 5], 
+    enemy_numbers=[1, 5, 10], 
     enemy_strategies=['attack_nearest', 'attack_strongest', 'attack_weakest', 'attack_uniform'], 
-    enemy_healths=[60, 120]
+    enemy_healths=[30, 60, 120]
 ):
     results = []
     for strategy in enemy_strategies:
@@ -221,14 +221,14 @@ def experiment_varying_enemies_and_health(
                 })
     # Plotting
     for metric in [
-    "Total Damage Dealt by Players",
-    "Total Damage Dealt by Enemies",
-    "Rounds Taken",
-    "Avg Attacks per Turn",
-    "Avg Entities Alive per Turn",
-    "Players Survived",
-    "Enemies Survived",
-    "Player Win %"
+    # "Total Damage Dealt by Players",
+    # "Total Damage Dealt by Enemies",
+    "Rounds Taken"#,
+    # "Avg Attacks per Turn",
+    # "Avg Entities Alive per Turn",
+    # "Players Survived",
+    # "Enemies Survived",
+    # "Player Win %"
     ]:
         plt.figure(figsize=(10, 6))
         for strategy in enemy_strategies:
