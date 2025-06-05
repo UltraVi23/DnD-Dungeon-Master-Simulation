@@ -31,9 +31,6 @@ class Enemy(object):
         """
         This function processes and executes the enemy's action based on their strategy.
         """
-        if self.health <= 0:
-        return (0,0)
-        
         from player import Player
         # Find all players
         players = []
@@ -76,28 +73,20 @@ class Enemy(object):
 
     def attack(self, player, grid):
         """
-        This function simulates attacking an enemy, dealing damage based on the player's damage dice.
-        Returns the amount of damage dealt.
+        This function simulates attacking a player.
         """
-        # Get the raw d20 roll before modifiers
-        raw_roll = self.roll(20, 0)
-        attack_roll = raw_roll + self.strength + self.proficiency_bonus
+        roll_to_hit = self.roll(20, self.strength + self.proficiency_bonus)
         damage = 0
-        
-        # Check if attack hits (either meets AC or is natural 20)
-        is_critical = raw_roll == 20
-        if is_critical or attack_roll >= player.armor_class:
-            # Roll base damage
-            damage_roll = self.roll(self.damage_die, 0)
-            
-            # On critical hit, double the damage roll (not the modifier)
-            if is_critical:
-                damage = (damage_roll * 2) + self.strength
-            else:
-                damage = damage_roll + self.strength
-                
-            # Apply damage to enemy
+
+        if(roll_to_hit >= player.armor_class):
+            damage = self.roll(self.damage_die, self.strength)
+            if(roll_to_hit - self.strength == 20):
+                damage *= 2
             player.health -= damage
+            
+            if player.health <= 0:
+                ex, ey = player.loc
+                grid[ey, ex] = None
         return damage
 
     def find_nearest_player(self, players):
@@ -189,8 +178,8 @@ class Enemy(object):
         
         # Check all adjacent squares
         for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
-            ny = my_y + dy
-            nx = my_x + dx
+            ny, nx = my_y + dy, my_x + dx
+            
             # Check if position is within grid bounds
             if (0 <= ny < grid.shape[0]) and (0 <= nx < grid.shape[1]):
                 cell = grid[ny, nx]
