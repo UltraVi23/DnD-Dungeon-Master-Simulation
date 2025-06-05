@@ -7,8 +7,8 @@ from visualize import visualize_grid
 class Model(object):
     def __init__(self):
         # Grid dimensions
-        self.GRID_X = 100
-        self.GRID_Y = 100
+        self.GRID_X = 20
+        self.GRID_Y = 20
 
         # Number of players and enemies
         self.NUM_PLAYERS = 5
@@ -168,6 +168,7 @@ def show(model, visualize = True):
     
 def batch_simulation(num_runs=10, num_players=5, num_enemies=10, enemy_strategy='attack_nearest', enemy_max_health=60):
     results = []
+    player_wins = 0
     for i in range(num_runs):
         model = Model()
         model.NUM_PLAYERS = num_players
@@ -179,20 +180,26 @@ def batch_simulation(num_runs=10, num_players=5, num_enemies=10, enemy_strategy=
         show(model, visualize=False)
         metrics = model.compute_metrics()
         results.append(metrics)
+        # Count as a win if at least one player survived
+        if metrics["Players Survived"] > 0:
+            player_wins += 1
     avg_metrics = {k: float(np.mean([m[k] for m in results])) for k in results[0]}
+    win_percentage = 100 * player_wins / num_runs
+    avg_metrics["Player Win %"] = win_percentage
     return avg_metrics
 
 def experiment_varying_enemies_and_health(
-    num_runs=3, 
+    num_runs=2, 
     num_players=5, 
-    enemy_numbers=[1, 5, 10], 
-    enemy_strategies=['attack_nearest', 'attack_sxtrongest', 'attack_weakest', 'attack_uniform'], 
-    enemy_healths=[30, 60, 120]
+    enemy_numbers=[1, 5], 
+    enemy_strategies=['attack_nearest', 'attack_strongest', 'attack_weakest', 'attack_uniform'], 
+    enemy_healths=[60, 120]
 ):
     results = []
     for strategy in enemy_strategies:
         for health in enemy_healths:
             for num_enemies in enemy_numbers:
+                print(f"Running simulation with {num_enemies} enemies, strategy: {strategy}, health: {health}")
                 avg_metrics = batch_simulation(
                     num_runs=num_runs,
                     num_players=num_players,
@@ -214,7 +221,8 @@ def experiment_varying_enemies_and_health(
     "Avg Attacks per Turn",
     "Avg Entities Alive per Turn",
     "Players Survived",
-    "Enemies Survived"
+    "Enemies Survived",
+    "Player Win %"
     ]:
         plt.figure(figsize=(10, 6))
         for strategy in enemy_strategies:

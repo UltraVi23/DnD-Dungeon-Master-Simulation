@@ -35,6 +35,9 @@ class Player(object):
         return np.random.randint(1, die) + plus
 
     def do_action(self, grid):
+        if self.health <= 0:
+            return (0,0)
+
         from enemy import Enemy
         # Find all enemies
         enemies = []
@@ -179,7 +182,9 @@ class Player(object):
         
         # Check all adjacent squares
         for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
-            ny, nx = my_y + dy, my_x + dx
+
+            ny = my_y + dy
+            nx = my_x + dx
             
             # Check if position is within grid bounds
             if (0 <= ny < grid.shape[0]) and (0 <= nx < grid.shape[1]):

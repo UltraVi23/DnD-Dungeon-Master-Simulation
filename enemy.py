@@ -31,6 +31,9 @@ class Enemy(object):
         """
         This function processes and executes the enemy's action based on their strategy.
         """
+        if self.health <= 0:
+        return (0,0)
+        
         from player import Player
         # Find all players
         players = []
@@ -178,8 +181,8 @@ class Enemy(object):
         
         # Check all adjacent squares
         for dy, dx in [(-1,0), (1,0), (0,-1), (0,1)]:
-            ny, nx = my_y + dy, my_x + dx
-            
+            ny = my_y + dy
+            nx = my_x + dx
             # Check if position is within grid bounds
             if (0 <= ny < grid.shape[0]) and (0 <= nx < grid.shape[1]):
                 cell = grid[ny, nx]
