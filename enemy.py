@@ -9,7 +9,7 @@ class Enemy(object):
         self.strat = strategy
 
         # Enemy stats
-        self.health = np.random.randint(30,60) # Random health between 30 and 60
+        self.health = np.random.randint(max(1, max_health - 30), max_health) # Random health between 30 and 60
         self.armor_class = 10 # Number that must be rolled on attack to hit
         self.strength = 4 # Damage bonus for attacks
         self.damage_die = 8 # Damage die for attacks (d8)

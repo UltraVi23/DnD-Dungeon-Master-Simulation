@@ -221,14 +221,14 @@ def experiment_varying_enemies_and_health(
                 })
     # Plotting
     for metric in [
-    # "Total Damage Dealt by Players",
-    # "Total Damage Dealt by Enemies",
-    "Rounds Taken"#,
-    # "Avg Attacks per Turn",
-    # "Avg Entities Alive per Turn",
-    # "Players Survived",
-    # "Enemies Survived",
-    # "Player Win %"
+    "Total Damage Dealt by Players",
+    "Total Damage Dealt by Enemies",
+    "Rounds Taken",
+    "Avg Attacks per Turn",
+    "Avg Entities Alive per Turn",
+    "Players Survived",
+    "Enemies Survived",
+    "Player Win %"
     ]:
         plt.figure(figsize=(10, 6))
         for strategy in enemy_strategies:
@@ -242,22 +242,35 @@ def experiment_varying_enemies_and_health(
         plt.legend()
         plt.tight_layout()
         plt.savefig(f"{metric.replace(' ', '_')}_vs_num_enemies.png")
-        plt.close()
         # plt.show()
+        plt.close()
 
 if __name__ == "__main__":
+    # Uncomment to run the live demo
     # model = Model()
+    # model.NUM_ENEMIES = 10
+    # model.enemy_max_health = 30
     # show(model)
-    # print(f"Battle Length: {model.battle_length}")
-    # print(f"Total Damage Dealt By Players: {model.player_damage_dealt}")
-    # print(f"Total Damage Received By Players: {model.player_damage_received}")
-    # print(f"Player Survival Count: {model.player_survival_count}")
-    # print(f"Enemy Survival Count: {model.enemy_survival_count}")
     # metrics = model.compute_metrics()
-    # print("  Tension   : {:.2f} (avg. living agents per turn)".format(float(metrics['Tension'])))
-    # print("  Fairness  : {:.2f} (1=all players survive, 0=all enemies survive)".format(float(metrics['Fairness'])))
-    # print("  Engagement: {:.2f} (avg. attacks per turn)".format(float(metrics['Engagement'])))
+    # for key, value in metrics.items():  # Changed from metrics to metrics.items()
+    #     if isinstance(value, float):
+    #         print(f"{key}: {value:.2f}")
+    #     else:
+    #         print(f"{key}: {value}")
 
+    # model = Model()
+    # model.NUM_ENEMIES = 5
+    # model.enemy_max_health = 120
+    # show(model)
+    # metrics = model.compute_metrics()
+    # for key, value in metrics.items():  # Changed from metrics to metrics.items()
+    #     if isinstance(value, float):
+    #         print(f"{key}: {value:.2f}")
+    #     else:
+    #         print(f"{key}: {value}")
+
+    # Uncomment to run a batch simulation
     # batch_simulation(num_runs=5, num_players=5, num_enemies=10)
 
+    # Uncomment to run the experiment with varying enemies and health
     experiment_varying_enemies_and_health()
