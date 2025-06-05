@@ -191,9 +191,9 @@ def batch_simulation(num_runs=10, num_players=5, num_enemies=10, enemy_strategy=
     return avg_metrics
 
 def experiment_varying_enemies_and_health(
-    num_runs=5, 
+    num_runs=100, 
     num_players=5, 
-    enemy_numbers=[1, 5, 10], 
+    enemy_numbers=[1, 3, 5, 7, 9, 11, 13], 
     enemy_strategies=['attack_nearest', 'attack_strongest', 'attack_weakest', 'attack_uniform'], 
     enemy_healths=[30, 60, 120]
 ):
@@ -243,26 +243,26 @@ def experiment_varying_enemies_and_health(
 
 if __name__ == "__main__":
     # Uncomment to run the live demo
-    model = Model(num_enemies=10, enemy_max_health=60)
-    show(model)
-    metrics = model.compute_metrics()
-    for key, value in metrics.items():
-        if isinstance(value, float):
-            print(f"{key}: {value:.2f}")
-        else:
-            print(f"{key}: {value}")
+    # model = Model(num_enemies=10, enemy_max_health=60)
+    # show(model)
+    # metrics = model.compute_metrics()
+    # for key, value in metrics.items():
+    #     if isinstance(value, float):
+    #         print(f"{key}: {value:.2f}")
+    #     else:
+    #         print(f"{key}: {value}")
 
-    model = Model(num_enemies=5, enemy_max_health=120)
-    show(model)
-    metrics = model.compute_metrics()
-    for key, value in metrics.items():
-        if isinstance(value, float):
-            print(f"{key}: {value:.2f}")
-        else:
-            print(f"{key}: {value}")
+    # model = Model(num_enemies=5, enemy_max_health=120)
+    # show(model)
+    # metrics = model.compute_metrics()
+    # for key, value in metrics.items():
+    #     if isinstance(value, float):
+    #         print(f"{key}: {value:.2f}")
+    #     else:
+    #         print(f"{key}: {value}")
 
     # Uncomment to run a batch simulation
     # batch_simulation(num_runs=5, num_players=5, num_enemies=10)
 
     # Uncomment to run the experiment with varying enemies and health
-    # experiment_varying_enemies_and_health()
+    experiment_varying_enemies_and_health()
