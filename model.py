@@ -221,14 +221,14 @@ def experiment_varying_enemies_and_health(
                 })
     # Plotting
     for metric in [
-    "Total Damage Dealt by Players",
-    "Total Damage Dealt by Enemies",
-    "Rounds Taken",
-    "Avg Attacks per Turn",
-    "Avg Entities Alive per Turn",
-    "Players Survived",
-    "Enemies Survived",
-    "Player Win %"
+    # "Total Damage Dealt by Players",
+    # "Total Damage Dealt by Enemies",
+    "Rounds Taken"#,
+    # "Avg Attacks per Turn",
+    # "Avg Entities Alive per Turn",
+    # "Players Survived",
+    # "Enemies Survived",
+    # "Player Win %"
     ]:
         plt.figure(figsize=(10, 6))
         for strategy in enemy_strategies:
