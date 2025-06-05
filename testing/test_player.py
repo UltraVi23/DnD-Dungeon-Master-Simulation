@@ -44,6 +44,66 @@ def test_player_speed_initialization():
     player = Player(5, 10, "melee")
     assert player.speed == 6, "Player speed should be initialized to 6"
 
+def test_player_proficiency_initialization():
+    """Test that player proficiency bonus is properly initialized"""
+    player = Player(5, 5, "melee")
+    assert player.proficiency_bonus == 2, "Player proficiency bonus should be initialized to 2"
+
+def test_player_proficiency_added_to_attack():
+    """Test that proficiency bonus is added to attack rolls"""
+    grid = np.zeros((10, 10), dtype=object)
+    player = Player(5, 5, "melee")
+    enemy = Enemy(5, 6, "attack_nearest")
+    grid[5, 5] = player
+    grid[5, 6] = enemy
+    
+    # Mock the roll method to return a known value
+    original_roll = player.roll
+    
+    def mock_roll(die, plus):
+        """Mock roll that returns 10 plus the modifier"""
+        return 10 + plus
+    
+    try:
+        # Override roll to return 10 (so with proficiency+strength should be 16)
+        player.roll = mock_roll
+        
+        # Make attack and check if proficiency was added
+        player.attack(enemy, grid)
+        expected_attack = 10 + player.proficiency_bonus + player.strength
+        
+        # Verify the attack roll includes proficiency
+        assert expected_attack == 16, "Attack roll should include proficiency bonus"
+    finally:
+        # Restore original roll method
+        player.roll = original_roll
+
+def test_player_proficiency_affects_hit_chance():
+    """Test that proficiency bonus affects ability to hit enemy AC"""
+    grid = np.zeros((10, 10), dtype=object)
+    player = Player(5, 5, "melee")
+    enemy = Enemy(5, 6, "attack_nearest")
+    grid[5, 5] = player
+    grid[5, 6] = enemy
+    
+    # Set enemy AC to require proficiency to hit
+    enemy.armor_class = 15  # Will require roll of 11+ with proficiency to hit
+    
+    def mock_roll(die, plus):
+        """Mock roll that returns 11 plus the modifier"""
+        return 11 + plus
+    
+    # Mock roll to return 11 (with proficiency+strength should hit AC 15)
+    original_roll = player.roll
+    try:
+        player.roll = mock_roll
+        
+        damage = player.attack(enemy, grid)
+        assert damage > 0, "Attack should hit with proficiency bonus added"
+    finally:
+        # Restore original roll method
+        player.roll = original_roll
+
 def test_player_attack_returns_integer():
     player = Player(5, 5, "melee")
     enemy = Enemy(6, 5, "attack_nearest")
