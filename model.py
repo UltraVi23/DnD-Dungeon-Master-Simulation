@@ -6,24 +6,33 @@ from visualize import visualize_grid
 
 class Model(object):
     def __init__(self):
+        # Grid dimensions
         self.GRID_X = 100
         self.GRID_Y = 100
 
+        # Number of players and enemies
         self.NUM_PLAYERS = 5
         self.NUM_ENEMIES = 10
 
+        # Initialize grid
+        self.grid = np.zeros((self.GRID_Y, self.GRID_X), dtype=object)
+
+        # Initiative order
+        self.initiative_order = self.roll_initiative()
+
+        # Battle statistics
+        self.battle_length = 0
         self.players_killed = 0
         self.enemies_killed = 0
-
-        self.grid = np.zeros((self.GRID_Y, self.GRID_X), dtype=object)
-        self.initiative_order = self.roll_initiative()
-        self.battle_length = 0
         self.player_damage_dealt = 0
         self.player_damage_received = 0
         self.player_survival_count = 0
         self.enemy_survival_count = 0
+
+        # Title message for visualization
         self.message = "D&D DM Simulation"
 
+        # Living agents and attacks per turn
         self.turn_living_agents = []
         self.turn_attacks = []
     
