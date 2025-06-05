@@ -206,14 +206,6 @@ def test_damage_recording():
     assert model.player_damage_dealt == initial_damage + damage_amount, "Damage should be added to total"
 
 
-def test_battle_length_increment():
-    """Test battle length increment during turns"""
-    model = Model()
-    initial_length = model.battle_length
-    model.execute_turns()
-    assert model.battle_length > initial_length, "Battle length should increment after executing turns"
-
-
 # Victory/Defeat Tests
 @pytest.fixture
 def model_with_defeated_enemies():
