@@ -90,33 +90,27 @@ class Enemy(object):
         return damage
 
     def find_nearest_player(self, players):
-            """
-            Finds the nearest player based on Manhattan distance.
-            Inputs:
-            self: Enemy object
-            players: list of Player objects
-            Outputs:
-            nearest: the nearest Player object based on Manhattan distance, or None if no players
-            """
-            def manhattan(loc1, loc2):
-                """
-                Calculates the Manhattan distance between two locations.
-                Inputs:
-                loc1: tuple (y1, x1) representing the first location
-                loc2: tuple (y2, x2) representing the second location
-                Outputs:
-                distance: integer Manhattan distance between loc1 and loc2
-                """
-                return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])
-            min_dist = float('inf')
-            nearest = None
-            for player in players:
-                if player.health <= 0 or player.loc is None:
-                    dist = manhattan(self.loc, player.loc)
-                    if dist < min_dist:
-                        min_dist = dist
-                        nearest = player
-            return nearest
+        """
+        Finds the nearest player based on Manhattan distance.
+        Inputs:
+        self: Enemy object
+        players: list of Player objects
+        Outputs:
+        nearest: the nearest Player object based on Manhattan distance, or None if no players
+        """
+        def manhattan(loc1, loc2):
+            return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])
+            
+        min_dist = float('inf')
+        nearest = None
+        for player in players:
+            # Changed condition: Only skip if player is actually dead or has no location
+            if player.health > 0 and player.loc is not None:
+                dist = manhattan(self.loc, player.loc)
+                if dist < min_dist:
+                    min_dist = dist
+                    nearest = player
+        return nearest
 
     def move_towards(self, target_loc, grid):
         """

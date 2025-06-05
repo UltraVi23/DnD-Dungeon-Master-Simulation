@@ -3,7 +3,7 @@ import time  # Add this import at the top
 
 class Player(object):
     def __init__(self, loc_y, loc_x, strategy):
-        
+
         # Initialize player location
         self.loc = (loc_y, loc_x)
 
@@ -52,20 +52,22 @@ class Player(object):
             damage = self.attack(adj[0], grid)
             return (damage,0)  # Return damage dealt
         
-        # If not adjacent, move toward nearest enemy
+        # If not adjacent, dash (move at double speed) toward nearest enemy
         nearest_enemy = self.find_nearest_enemy(enemies)
         if not nearest_enemy:
             return (0,0)  # No enemies to attack
         
+        # Save original speed for dash
+        original_speed = self.speed
+        self.speed = original_speed * 2
+            
         if self.loc != nearest_enemy.loc:
             self.move_towards(nearest_enemy.loc, grid)
             
-        # After moving, try to attack if now adjacent
-        adj = self.adjacent_enemies(grid)
-        if adj:
-            damage = self.attack(adj[0], grid)
-            return (damage, 0)  # Return damage dealt
-        self.move_towards(nearest_enemy.loc, grid) # If still not adjacent, just move towards the enemy again
+        # Reset speed back to original
+        self.speed = original_speed
+        
+        # No attack allowed after dashing
         return (0,0)
 
     def find_nearest_enemy(self, enemies):
@@ -78,19 +80,13 @@ class Player(object):
         nearest: the nearest Enemy object based on Manhattan distance, or None if no enemies
         """
         def manhattan(loc1, loc2):
-            """
-            Calculates the Manhattan distance between two locations.
-            Inputs:
-            loc1: tuple (y1, x1) representing the first location
-            loc2: tuple (y2, x2) representing the second location
-            Outputs:
-            distance: integer Manhattan distance between loc1 and loc2
-            """
             return abs(loc1[0] - loc2[0]) + abs(loc1[1] - loc2[1])
+            
         min_dist = float('inf')
         nearest = None
         for enemy in enemies:
-            if enemy.health <= 0 or enemy.loc is None:
+            # Changed condition: Only skip if enemy is actually dead or has no location
+            if enemy.health > 0 and enemy.loc is not None:
                 dist = manhattan(self.loc, enemy.loc)
                 if dist < min_dist:
                     min_dist = dist
