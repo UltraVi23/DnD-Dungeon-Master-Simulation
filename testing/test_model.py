@@ -190,7 +190,7 @@ def test_damage_recording():
 def test_turn_increment():
     """Test single turn increment"""
     model = Model()
-    initial_turns = int(model.battle_length)  # Ensure we have an integer
+    initial_turns = model.battle_length  # Remove int() conversion
     model.execute_turns()
     assert isinstance(model.battle_length, (int, np.integer)), "Battle length should be an integer type"
     assert model.battle_length == initial_turns + 1, "Battle length should increment by 1 after executing a turn"

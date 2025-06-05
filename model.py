@@ -45,32 +45,31 @@ class Model(object):
         This function rolls initiative for the combat, or the order in which players and enemies will attack.
         """
 
-        def randPos():
-            """Generate a random position within the grid."""
-            rand_y = np.random.randint(0, self.GRID_Y)
-            rand_x = np.random.randint(0, self.GRID_X)
-            return rand_y, rand_x if self.grid[rand_y, rand_x] == 0 else randPos()
-        
         initiative = []
         # Initialize grid with zeros
         self.grid = np.zeros((self.GRID_Y, self.GRID_X), dtype=object)
         
+        # Place exactly NUM_PLAYERS players
+        placed_players = 0
+        while placed_players < self.NUM_PLAYERS:
+            y = np.random.randint(0, self.GRID_Y)
+            x = np.random.randint(0, self.GRID_X)
+            if self.grid[y, x] == 0:  # Only place player if position is empty
+                player = Player(y, x, 'melee')
+                self.grid[y, x] = player  # Store the player object directly
+                initiative.append(player)
+                placed_players += 1
+        
+        # Place exactly NUM_ENEMIES enemies
         placed_enemies = 0
         while placed_enemies < self.NUM_ENEMIES:
             y = np.random.randint(0, self.GRID_Y)
             x = np.random.randint(0, self.GRID_X)
             if self.grid[y, x] == 0:  # Only place enemy if position is empty
                 enemy = Enemy(y, x, self.enemy_strategy, max_health=self.enemy_max_health)
+                self.grid[y, x] = enemy  # Store the enemy object directly
                 initiative.append(enemy)
-                self.grid[y, x] = enemy
                 placed_enemies += 1
-        
-        # Place exactly NUM_PLAYERS players
-        for _ in range(self.NUM_PLAYERS):
-            new_y, new_x = randPos()
-            player = Player(new_y, new_x, 'melee')
-            initiative.append(player)
-            self.grid[player.loc[0], player.loc[1]] = player
         
         np.random.shuffle(initiative)
         return initiative
