@@ -160,7 +160,7 @@ def show(model, visualize = True):
         model.player_survival_count = len(model.get_all_players())
         model.enemy_survival_count = len(model.get_all_enemies())
         if visualize:
-            visualize_grid(model.grid, message=model.message, ax=ax, pause=0.1)
+            visualize_grid(model.grid, message=model.message, ax=ax, pause=0.1, enemy_health=model.enemy_max_health)
         
         # Check if battle should end
         if len(model.get_all_players()) == 0:
@@ -265,4 +265,4 @@ if __name__ == "__main__":
     # batch_simulation(num_runs=5, num_players=5, num_enemies=10)
 
     # Uncomment to run the experiment with varying enemies and health
-    experiment_varying_enemies_and_health()
+    # experiment_varying_enemies_and_health()
