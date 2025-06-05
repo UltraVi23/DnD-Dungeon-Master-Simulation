@@ -3,6 +3,7 @@ import os
 from player import Player
 from enemy import Enemy
 import numpy as np
+import pytest
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -36,9 +37,21 @@ def test_player_strength_initialization():
     player = Player(5, 10, "melee")
     assert player.strength == 4, "Player strength should be initialized to 4"
 
-def test_player_damage_die_initialization():
+def test_melee_player_damage_die_initialization():
     player = Player(5, 10, "melee")
-    assert player.damage_die == 8, "Player damage die should be initialized to 8"
+    assert player.damage_die == 8, "Melee damage die should be initialized to 8"
+
+def test_ranged_damage_die_initialization():
+    player = Player(5, 5, "ranged")
+    assert player.damage_die == 4, "Ranged player should have a d4 damage die"
+
+def test_melee_attack_range_initialization():
+    player = Player(5, 5, "melee")
+    assert player.attack_range == 1, "Melee player attack range should be initialized to 1"
+
+def test_ranged_attack_range_initialization():
+    player = Player(5, 5, "ranged")
+    assert player.attack_range == 12, "Ranged player attack range should be initialized to 12"
 
 def test_player_speed_initialization():
     player = Player(5, 10, "melee")
