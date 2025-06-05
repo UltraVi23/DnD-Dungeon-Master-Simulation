@@ -2,9 +2,7 @@ import numpy as np
 import time  # Add this import at the top
 
 class Enemy(object):
-    def __init__ (self, loc_y, loc_x, strategy):
-        
-        # Initialize enemy location
+    def __init__ (self, loc_y, loc_x, strategy, max_health=60):
         self.loc = (loc_y, loc_x)
 
         # Strategy for enemy: Either "attack_nearest", "attack_strongest", "attack_weakest", or "attack_uniform"
@@ -59,6 +57,7 @@ class Enemy(object):
             target_player = min(players, key=lambda p: p.health, default=None)
         elif self.strat == 'attack_uniform':
             target_player = np.random.choice(players) if players else None
+
         if not target_player:
             return (0,0)  # No players to attack
         
@@ -112,10 +111,11 @@ class Enemy(object):
             min_dist = float('inf')
             nearest = None
             for player in players:
-                dist = manhattan(self.loc, player.loc)
-                if dist < min_dist:
-                    min_dist = dist
-                    nearest = player
+                if player.health <= 0 or player.loc is None:
+                    dist = manhattan(self.loc, player.loc)
+                    if dist < min_dist:
+                        min_dist = dist
+                        nearest = player
             return nearest
 
     def move_towards(self, target_loc, grid):
